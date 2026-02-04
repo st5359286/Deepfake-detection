@@ -24,10 +24,15 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
         if (response.ok) {
             messageDisplay.textContent = data.message;
             messageDisplay.classList.add('text-green-400');
-            // Redirect to login page after a short delay
+            // Alert the OTP for development convenience
+            if (data.otp) {
+                alert(`DEV: Your OTP is ${data.otp}`);
+            }
+
+            // Redirect to OTP Verification page
             setTimeout(() => {
-                window.location.href = '/index.html';
-            }, 2000);
+                window.location.href = `/verify-otp.html?email=${encodeURIComponent(email)}`;
+            }, 1000);
         } else {
             messageDisplay.textContent = data.message || 'Registration failed.';
             messageDisplay.classList.add('text-red-400');

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Tool - Deepfake Detector</title>
+    <!-- Use the Tailwind Play CDN for development -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<style>
+    .forensic-item {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-left-width: 4px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+    .forensic-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    .forensic-item h4 {
+        font-weight: 600;
+        color: #E5E7EB; /* gray-200 */
+        margin-bottom: 4px;
+    }
+    .forensic-item p {
+        font-size: 0.875rem; /* text-sm */
+        color: #9CA3AF; /* gray-400 */
+        line-height: 1.5;
+    }
+</style>
+<body class="bg-gray-900 text-gray-200 font-sans">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+        <header class="relative z-20 flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white">Analysis Tool</h1>
+                <p class="text-gray-400">Upload media to check for manipulation</p>
+            </div>
+            <button onclick="window.location.href='/dashboard.html'" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition flex items-center text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                <span>Dashboard</span>
+            </button>
+        </header>
+
+        <main class="bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-700">
+            <div id="upload-screen" class="screen active">
+                <div class="relative z-10 flex flex-wrap justify-center gap-4 mb-6">
+                    <button class="tab bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition flex items-center justify-center" data-tab="image">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Analyze Image</span>
+                    </button>
+                    <button class="tab bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition flex items-center justify-center" data-tab="video">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Analyze Video</span>
+                    </button>
+                    <button class="tab bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition flex items-center justify-center" data-tab="audio">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962_0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Analyze Audio</span>
+                    </button>
+                </div>
+                <div id="dropZone" class="drop-zone">
+                    <div id="upload-icon-container" class="text-center">
+                        <!-- Icon will be inserted by JS -->
+                    </div>
+                    <p id="upload-text" class="text-lg font-semibold text-gray-300">Drag & Drop Your File Here</p>
+                    <p class="text-sm text-gray-500 mt-1">or click to browse</p>
+                    <p id="upload-formats" class="text-xs text-gray-500 mt-4">Supported formats: JPG, PNG, WEBP</p>
+                    <input type="file" id="file-input" class="opacity-0 w-full h-full absolute top-0 left-0 cursor-pointer">
+                </div>
+                <div id="error-display" class="text-red-400 text-center mt-4 min-h-[20px] hidden"></div>
+            </div>
+
+            <div id="analyzing-screen" class="screen hidden text-center py-12">
+                <h2 id="analyzing-title" class="text-2xl font-semibold text-white mb-2">Uploading...</h2>
+                <p id="fileName" class="text-gray-400 mb-4"></p>
+
+                <div id="progress-wrapper" class="w-full bg-gray-600 rounded-full">
+                    <div id="progress-bar" class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style="width: 0%">0%</div>
+                </div>
+
+                <div id="analyzing-loader" class="loader mt-4 hidden"></div>
+                <p id="analyzing-text" class="text-gray-400 mt-2 hidden">File uploaded. Now analyzing...</p>
+
+                <div class="mt-6">
+                    <button id="cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">Cancel</button>
+                </div>
+            </div>
+
+            <div id="results-screen" class="screen hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                    <!-- Left Column: Media Preview -->
+                    <div id="media-preview" class="bg-gray-900/50 rounded-lg flex items-center justify-center p-4 min-h-[300px]">
+                        <!-- Media will be inserted by JS -->
+                    </div>
+
+                    <!-- Right Column: Analysis Details -->
+                    <div class="space-y-6">
+                        <div class="text-center md:text-left">
+                            <p class="text-sm font-medium text-gray-400">Analysis Result</p>
+                            <h2 id="verdictText" class="result-verdict"></h2>
+                            <p class="text-gray-400">Confidence: <span id="confidenceScore" class="font-bold"></span></p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3 text-white">Chief's Judgment</h3>
+                            <div id="chiefJudgment" class="forensic-item">
+                                <!-- Content will be inserted by JS -->
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3 text-white">Visual Analysis</h3>
+                            <div id="visualList" class="space-y-2"></div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3 text-white">Metadata</h3>
+                            <div id="metadataList" class="space-y-2"></div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3 text-white">Forensic Details</h3>
+                            <div id="forensicList" class="space-y-2"></div>
+                        </div>
+                        <div class="bg-gray-900/50 p-4 rounded-lg">
+                            <button id="generate-summary-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">✨ Generate Report Summary</button>
+                            <div id="summary-panel" class="mt-4 text-left bg-gray-800 p-4 rounded-md hidden">
+                                <h4 class="font-semibold mb-2 text-white">Summary</h4>
+                                <p id="summaryText" class="text-gray-300 text-sm"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center pt-6 mt-6 border-t border-gray-700">
+                    <button id="reset-btn" class="btn-secondary">Analyze Another File</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+</body>
+</html>

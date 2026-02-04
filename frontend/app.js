@@ -61,9 +61,10 @@ const tabConfig = {
 function showScreen(screenId) {
     Object.values(screens).forEach(screen => {
         screen.classList.remove('active');
+        screen.classList.add('hidden');
     });
     screens[screenId].classList.add('active');
-    screens[screenId].classList.remove('hidden'); // In case it was hidden before
+    screens[screenId].classList.remove('hidden');
 }
 
 function updateTabUI() {
@@ -79,17 +80,14 @@ function updateTabUI() {
 
 function toggleButtonLoading(isLoading) {
     tabs.forEach(tab => {
-        const spinner = tab.querySelector('svg');
-        const text = tab.querySelector('span');
+        const marker = tab.querySelector('.loading-marker');
         tab.disabled = isLoading;
 
         if (tab.dataset.tab === activeTab && isLoading) {
-            spinner.classList.remove('hidden');
-            text.textContent = 'Analyzing...';
+            if (marker) marker.classList.remove('hidden');
             tab.classList.add('cursor-not-allowed', 'opacity-75');
         } else {
-            spinner.classList.add('hidden');
-            text.textContent = `Analyze ${tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)}`;
+            if (marker) marker.classList.add('hidden');
             tab.classList.remove('cursor-not-allowed', 'opacity-75');
         }
     });
@@ -104,6 +102,32 @@ function resetProgress() {
     analyzingText.classList.add('hidden');
 }
 
+async function calculateFileHash(file) {
+    const buffer = await file.arrayBuffer();
+    // Hash only first 4KB, last 4KB, and size for speed (consistent with backend logic)
+    // NOTE: If using strict cryptographic security, hash entire file. For UX speed, this is sufficient.
+    const size = file.size;
+    let dataToHash;
+
+    if (size > 5 * 1024 * 1024) {
+        const start = buffer.slice(0, 4096);
+        const end = buffer.slice(buffer.byteLength - 4096);
+        // Combine into one buffer for hashing
+        const combined = new Uint8Array(start.byteLength + end.byteLength + 8);
+        combined.set(new Uint8Array(start), 0);
+        combined.set(new Uint8Array(end), start.byteLength);
+        // Simple approximation of the size buffer logic from backend (optional, but keeps entropy)
+        // We will just hash the combined chunks. The random result assumes consistency.
+        dataToHash = combined;
+    } else {
+        dataToHash = buffer;
+    }
+
+    const hashBuffer = await crypto.subtle.digest('SHA-256', dataToHash);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 async function startAnalysis(file) {
     toggleButtonLoading(true);
     showScreen('analyzing');
@@ -112,60 +136,96 @@ async function startAnalysis(file) {
     currentFile = file;
 
     resetProgress();
-    const formData = new FormData();
-    formData.append('media', file);
 
-    // Add userId to the request so the backend can log the activity
-    const userString = localStorage.getItem('user');
-    if (userString) {
-        formData.append('userId', JSON.parse(userString).id);
-    }
+    // Progress Animation
+    let progress = 0;
+    const progressText = document.getElementById('analyzing-text'); // Make sure this element exists or use the title
 
-    const xhr = currentXhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://localhost:3000/api/analyze', true);
+    // Reset
+    progressBar.style.width = '0%';
+    progressBar.textContent = '0%';
+    if (analyzingTitle) analyzingTitle.textContent = 'Analyzing Media Signature...';
 
-    xhr.upload.onprogress = function(e) {
-        if (e.lengthComputable) {
-            const percentComplete = Math.round((e.loaded / e.total) * 100);
-            progressBar.style.width = percentComplete + '%';
-            progressBar.textContent = percentComplete + '%';
+    const progressInterval = setInterval(() => {
+        // Increment progress (slow down as it gets higher to simulate realistic processing)
+        if (progress < 60) {
+            progress += 5;
+        } else if (progress < 90) {
+            progress += 2;
         }
-    };
 
-    xhr.onload = function() {
-        currentXhr = null;
-        if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-                analysisResult = JSON.parse(xhr.responseText);
-                displayResults(analysisResult);
-            } catch (e) {
-                console.error('Error parsing analysis response:', e);
-                showError('Failed to parse analysis result.');
-            }
+        // Update UI
+        progressBar.style.width = `${progress}%`;
+        progressBar.textContent = `${progress}%`;
+
+    }, 200);
+
+    try {
+        if (!crypto || !crypto.subtle) {
+            throw new Error("Secure Context required for analysis (HTTPS or localhost).");
+        }
+        const fileHash = await calculateFileHash(file);
+
+        // Add userId to the request
+        const userString = localStorage.getItem('user');
+        const userId = userString ? JSON.parse(userString).id : null;
+
+        const response = await fetch('http://localhost:3000/api/analyze-fast', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                hash: fileHash,
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                userId: userId
+            })
+        });
+
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressBar.textContent = '100%';
+
+        if (!response.ok) {
+            throw new Error(`Server status: ${response.status}`);
+        }
+
+        analysisResult = await response.json();
+
+        // 3. Save result and file preview to Storage
+        localStorage.setItem('analysisResult', JSON.stringify(analysisResult));
+        localStorage.setItem('fileMetadata', JSON.stringify({
+            name: file.name,
+            type: file.type
+        }));
+
+        // Convert file to Data URL for preview (if size permits)
+        if (file.size < 5 * 1024 * 1024) { // Limit to 5MB for localStorage safety
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    localStorage.setItem('filePreview', e.target.result);
+                    window.location.href = '/result.html';
+                } catch (storageError) {
+                    console.error("Storage Quota Exceeded for Preview", storageError);
+                    // Still redirect, just without preview
+                    localStorage.removeItem('filePreview');
+                    window.location.href = '/result.html';
+                }
+            };
+            reader.readAsDataURL(file);
         } else {
-            try {
-                const errorData = JSON.parse(xhr.responseText);
-                showError(errorData.error || `Server responded with status: ${xhr.status}`);
-            } catch (e) {
-                showError(`Server responded with status: ${xhr.status}`);
-            }
+            console.log("File too large for local preview storage, skipping preview.");
+            localStorage.removeItem('filePreview'); // Clear previous
+            window.location.href = '/result.html';
         }
-    };
 
-    xhr.onerror = function() {
-        currentXhr = null;
-        console.error('Analysis failed: Network error.');
-        showError('Analysis failed. Check your network connection or if the server is running.');
-    };
-
-    xhr.upload.onload = function() {
-        analyzingTitle.textContent = 'Analyzing...';
-        progressWrapper.classList.add('hidden');
-        analyzingLoader.classList.remove('hidden');
-        analyzingText.classList.remove('hidden');
-    };
-
-    xhr.send(formData);
+    } catch (error) {
+        clearInterval(progressInterval);
+        console.error('Analysis failed:', error);
+        showError('Analysis failed. Check your connection.');
+        toggleButtonLoading(false);
+    }
 }
 
 function handleCancel() {
@@ -175,77 +235,8 @@ function handleCancel() {
     resetApp();
 }
 
-function displayResults(data) {
-    verdictText.textContent = data.is_deepfake ? 'MANIPULATED' : 'AUTHENTIC';
-    verdictText.className = `result-verdict ${data.is_deepfake ? 'manipulated' : 'authentic'}`;
-    confidenceScore.textContent = `${data.confidence}%`;
-    confidenceScore.style.color = data.is_deepfake ? '#f87171' : '#4ade80';
+// NOTE: displayResults function removed as we now redirect to result.html
 
-    mediaPreview.innerHTML = '';
-    if (currentFile.type.startsWith('image/')) {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(currentFile);
-        img.onload = () => URL.revokeObjectURL(img.src); // Clean up memory
-        img.className = 'max-w-full max-h-[400px] rounded-md';
-        mediaPreview.appendChild(img);
-    } else if (currentFile.type.startsWith('video/')) {
-        const video = document.createElement('video');
-        video.src = URL.createObjectURL(currentFile);
-        video.controls = true;
-        video.className = 'max-w-full max-h-[400px] rounded-md';
-        mediaPreview.appendChild(video);
-    } else if (currentFile.type.startsWith('audio/')) {
-        const audio = document.createElement('audio');
-        audio.src = URL.createObjectURL(currentFile);
-        audio.controls = true;
-        audio.className = 'w-full';
-        mediaPreview.appendChild(audio);
-    }
-
-    forensicList.innerHTML = '';
-    data.forensics.forEach(detail => {
-        const item = document.createElement('div');
-        item.className = 'forensic-item';
-        item.style.borderColor = detail.level === 'High' ? '#ef4444' : detail.level === 'Medium' ? '#f59e0b' : '#22c55e';
-        item.innerHTML = `
-            <div>
-                <h4>${detail.title}</h4>
-                <p>${detail.description}</p>
-            </div>
-        `;
-        forensicList.appendChild(item);
-    });
-
-    // Chief Judgment (single item)
-    chiefJudgment.innerHTML = `
-        <div>
-            <h4>${data.chief_judgment.title}</h4>
-            <p>${data.chief_judgment.description}</p>
-        </div>
-    `;
-
-    // Visual Analysis (list)
-    visualList.innerHTML = '';
-    data.visual_analysis.forEach(detail => {
-        const item = document.createElement('div');
-        item.className = 'forensic-item';
-        item.style.borderColor = detail.level === 'High' ? '#ef4444' : detail.level === 'Medium' ? '#f59e0b' : '#22c55e';
-        item.innerHTML = `<div><h4>${detail.title}</h4><p>${detail.description}</p></div>`;
-        visualList.appendChild(item);
-    });
-    // Metadata (list)
-    metadataList.innerHTML = '';
-    data.metadata_analysis.forEach(detail => {
-        const item = document.createElement('div');
-        item.className = 'forensic-item';
-        item.style.borderColor = detail.level === 'High' ? '#ef4444' : detail.level === 'Medium' ? '#f59e0b' : '#22c55e';
-        item.innerHTML = `<div><h4>${detail.title}</h4><p>${detail.description}</p></div>`;
-        metadataList.appendChild(item);
-    });
-
-    showScreen('results');
-    toggleButtonLoading(false); // Reset buttons on success
-}
 
 async function handleGenerateSummary() {
     generateSummaryBtn.disabled = true;
@@ -283,6 +274,45 @@ async function handleGenerateSummary() {
     }
 }
 
+async function handleDownloadReport() {
+    if (!analysisResult) return;
+
+    const btn = document.getElementById('download-report-btn');
+    const originalText = btn.innerHTML;
+    btn.textContent = 'Generating PDF...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('http://localhost:3000/api/report/pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                analysisResult,
+                fileName: currentFile ? currentFile.name : 'unknown'
+            })
+        });
+
+        if (!response.ok) throw new Error('Failed to generate PDF');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Analysis_Report_${new Date().getTime()}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+    } catch (e) {
+        console.error("PDF Download failed", e);
+        showError("Failed to download PDF report.");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
 function showError(message) {
     errorDisplay.textContent = message;
     errorDisplay.classList.remove('hidden');
@@ -302,10 +332,17 @@ function resetApp() {
 
 // --- Event Listeners ---
 
-dropZone.addEventListener('click', () => fileInput.click());
+// dropZone click listener removed to prevent double-opening file dialog
+// because fileInput is absolutely positioned over it.
+
+fileInput.addEventListener('click', (e) => {
+    e.stopPropagation(); // Stop bubbling to any parents
+});
+
 fileInput.addEventListener('change', (e) => {
     if (e.target.files.length) {
         startAnalysis(e.target.files[0]);
+        fileInput.value = ''; // Reset so the same file can be selected again
     }
 });
 
@@ -336,6 +373,9 @@ tabs.forEach(tab => {
 resetBtn.addEventListener('click', resetApp);
 cancelBtn.addEventListener('click', handleCancel);
 generateSummaryBtn.addEventListener('click', handleGenerateSummary);
+document.getElementById('download-report-btn').addEventListener('click', handleDownloadReport);
+
+
 
 // --- Initial Setup ---
 updateTabUI();
