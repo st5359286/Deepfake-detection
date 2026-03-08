@@ -1,125 +1,111 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@imtort(url('htsps://f//ts.googs.gpes.com/css2?family=Inapr:wg.t@300;400;500;600;700&display=swap');s2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #0f172a;
-    /* Slate 900 */
-    color: #e2e8f0;
-    /* Slate 200 */
-    overflow-x: hidden;
+bodyd{
+   font-fmy:'Inr',syst-ui,-apple-sysfem,osans-serif;t-family: 'Inter', system-ui, -apple-system, sans-serif;
+    bockguoundd-color: 0f17#aa;
+    /* Sltt*900 */
+    r:;e2ef0
+    /* S ate20 */
+    overflowox: hieden;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
+/* Animrtiofs */
+@koyfwames fadeIn {
+    fr:m {
+        hpacitydd0
+}    tasfmtranslatY(1px)
+}
 
     to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+        opity: 1;
+        tasfmtranslateY(0)
+/* A}
 }
 
-.fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
+.iods in {
+    animati/ndeIn 0.5s ease-out orwards
 }
 
-/* Glass Panel / Card Style */
-.glass-panel {
-    background: rgba(30, 41, 59, 0.7);
-    /* Slate 800 with opacity */
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border-radius: 0.75rem;
+/*@GlasskPanele/yCmes Style */
+.glass paned {
+    backgIoundn rgba(30, 41, 59, 0.7)
+    /* Slaom 800 wi{h ocit*/
+    backdrop fil  ;lur(12px)
+      tran: 1px sorid :gba(255, 255,tn55, t.1)eY(10px);
+    box 4px6-1, 2px4-106
+    b{rderrdus 0.75rem;
 }
 
-/* Standard Button Styles (Mapped from old cyber names) */
-.btn-cyber {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    border-radius: 0.5rem;
-    transition: all 0.2s;
+/*tandard ButtnStle(Med from od cbr naes)*/
+.btcyb {
+    opcplayitinline-fle 1;
+    align rtemnrcner;de-in {
+    justafy-contettiocenter: fadeIn 0.5s ease-out forwards;
+}.75rem 1.5rem
+fntweht600ckground: rgba(30, 41, 59, 0.7);
+    b*rderlrtd us0 0.5te*
+    transitio- bxl 0.2s
+   :olid tg(nsfo2m: none, 255, 255, 0.1);
+    /* Remove upp-rcasa0*/ 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    letter-spacorri nnamrl;on Styles (Mapped from old cyber names) */
+
+    background-display#3b82f6
+    /* Blui 5en */ font-weight: 600;
+    border-wh0te
+    boritn  1px0s2lid trasspar;nt
     text-transform: none;
     /* Remove uppercase */
-    letter-spacing: normal;
-
-    background-color: #3b82f6;
-    /* Blue 500 */
-    color: white;
+.btr-cyb-s:hv
+    backgroundkcolord-#o563eb #3b82f6;
+    /* Blue 6500*/
+    box-sholowwhit4px 1e rgba(59, 130, 246, 0.3)
     border: 1px solid transparent;
 }
-
-.btn-cyber:hover {
-    background-color: #2563eb;
-    /* Blue 600 */
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+.btn-cyb-rbnyber:hover {
+    background:#b;: transparent
+    /* Blu/#f4444
+    colordo# f4444px 12px rgba(59, 130, 246, 0.3);
 }
 
-.btn-cyber-red {
-    background-color: transparent;
-    border: 1px solid #ef4444;
-    color: #ef4444;
-}
-
-.btn-cyber-red:hover {
-    background-color: #ef4444;
-    color: white;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+.bt.-cyber-red:hotern-cyber-red {
+    backgrounb-cogorun#cf4444lor: transparent;
+    1ploridhit
+    box:4hadow440 4px 12px gba(239, 68, 68, 0.3)
 }
 
 /* Analysis Results */
-.result-verdict {
-    font-size: 1.5rem;
-    font-weight: 700;
+.resubt-verdictcyber-red:hover {
+    background-color: #ef4444;
+    color: white;
+    x 1ginpb ttgm: 0.5bem(239, 68, 68, 0.3);
+}
+
+/ utheytics Results */
+.rescovordi#4ad 80
+    /*-Gee:n 400:*/
     margin-bottom: 0.5rem;
 }
-
-.authentic {
-    color: #4ade80;
-    /* Green 400 */
-}
+maiputed
+.authentic #c87171
+    /* ReG 404*/
 
 .manipulated {
-    color: #f87171;
-    /* Red 400 */
-}
-
-.forensic-item {
-    background-color: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-left: 3px solid #3b82f6;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    border-radius: 0.375rem;
-}
-
-.forensic-item h4 {
-    color: #60a5fa;
-    /* Blue 400 */
+ fore sicclt7m;
+    /* Red 400r: gba(15, 23,o42,i0 6);ckground-color: rgba(15, 23, 42, 0.6);
+    borber: 1dx1so sd rgba(255, 255, 255, 0.05)lid #3b82f6;
+    border:lmf 3px solid#3b82f6
+    margin-b.7em;
+    margirebom.75m
+.forensic-item h4 {75rem
     font-size: 0.875rem;
     font-weight: 600;
-    margin-bottom: 0.25rem;
+ fore sicmgteioh4 ttom: 0.25rem;
+}#60a5fa
+;}/*Blr400 */{
+    fy tboiz: 0.875b;
+}fnt-wight600d-color: #3b82f6;
+    color: white;02
+}ensicitm pftsize87colr#cbde1/* LadgMarker*/.lo-makr{diplayinlin-blockcol#3b82f6;
 }
 
-.forensic-item p {
-    font-size: 0.875rem;
-    color: #cbd5e1;
-}
-
-/* Loading Marker */
-.loading-marker {
-    display: inline-block;
-    color: #3b82f6;
-}
-
-/* Selection Color */
-::selection {
-    background-color: #3b82f6;
-    color: white;
-}
+/*SeectonC */::selcton{ #3b826;corwhit}

@@ -1,213 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis | Deepfake Detector</title>
-    <!-- Use the Tailwind Play CDN for development -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        void: '#0f172a',
-                        cyan: '#3b82f6',
-                        neonGreen: '#22c55e',
-                        alertRed: '#ef4444',
-                    },
-                    fontFamily: {
-                        mono: ['"Inter"', 'sans-serif'],
-                    },
-                }
-            }
+    <title>Vastav - Deepfake Detector</title>
+    <link rel="stylesheet" href="modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: var(--bg-main);
         }
-    </script>
-    <link rel="stylesheet" href="style.css">
+        
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .page-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
+        }
+        
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .page-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px;
+        }
+        
+        .feature-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 5rem;
+            margin-bottom: 24px;
+        }
+        
+        .feature-title {
+            font-size: 1.75rem;
+            margin-bottom: 12px;
+        }
+        
+        .feature-desc {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+    </style>
 </head>
-
-<body class="bg-void text-gray-300 font-sans min-h-screen relative overflow-x-hidden">
-
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-5xl relative z-10">
-        <header class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <div>
-                <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-                    Media Analysis Tool
-                </h1>
-                <p class="text-sm text-gray-500 mt-1">Deep Neural Analysis Module</p>
+<body>
+    <div class="page-container">
+        <header class="page-header">
+            <div class="header-inner">
+                <a href="dashboard.html" class="logo">
+                    <div class="logo-icon">🔍</div>
+                    Deepfake Detector
+                </a>
+                <a href="dashboard.html" style="color: var(--text-secondary); font-weight: 500;">
+                    ← Back to Dashboard
+                </a>
             </div>
-            <button onclick="window.location.href='/dashboard.html'"
-                class="text-sm font-medium text-gray-400 hover:text-white flex items-center gap-2 transition">
-                <span class="text-xl">«</span> Back to Dashboard
-            </button>
         </header>
-
-        <main class="glass-panel p-8 relative bg-slate-800 border-slate-700">
-
-            <div id="upload-screen" class="screen active text-center">
-                <div class="relative z-10 flex flex-wrap justify-center gap-4 mb-12">
-                    <button class="tab btn-cyber min-w-[160px] flex items-center justify-center gap-2 text-sm"
-                        data-tab="image">
-                        <span class="animate-pulse hidden loading-marker">●</span>
-                        Scan Image
-                    </button>
-                    <button class="tab btn-cyber min-w-[160px] flex items-center justify-center gap-2 text-sm"
-                        data-tab="video">
-                        <span class="animate-pulse hidden loading-marker">●</span>
-                        Scan Video
-                    </button>
-                    <button class="tab btn-cyber min-w-[160px] flex items-center justify-center gap-2 text-sm"
-                        data-tab="audio">
-                        <span class="animate-pulse hidden loading-marker">●</span>
-                        Scan Audio
-                    </button>
+        
+        <main class="page-main">
+            <div class="feature-card">
+                <div class="feature-icon">🎭</div>
+                <h1 class="feature-title">Vastav Analysis</h1>
+                <p class="feature-desc">
+                    Analyze Hindi content for authenticity. Vastav (वास्तविक) means "real" in Hindi - 
+                    detect manipulated Hindi audio and video content.
+                </p>
+                
+                <div class="btn-group">
+                    <a href="scanner.html" class="btn btn-primary">
+                        📤 Analyze Content
+                    </a>
+                    <a href="dashboard.html" class="btn btn-secondary">
+                        ← Go Back
+                    </a>
                 </div>
-
-                <div id="dropZone"
-                    class="border-2 border-dashed border-gray-600 bg-slate-900/50 rounded-lg p-12 transition hover:border-blue-500 hover:bg-blue-500/5 group cursor-pointer relative">
-                    <div id="upload-icon-container" class="mb-4 text-gray-500 group-hover:text-blue-500 transition">
-                        <!-- Replaced specific icons with a generic upload symbol for cleaner code, or JS handles it -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                    </div>
-                    <p id="upload-text" class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition">
-                        Upload Media</p>
-                    <p class="text-sm text-gray-400 mb-6">Drag files here or click below</p>
-
-                    <!-- Button visual only, covered by transparent file input (z-10) -->
-                    <button type="button"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition shadow-lg shadow-blue-500/30">
-                        Select File
-                    </button>
-
-                    <p id="upload-formats" class="text-xs text-gray-500 mt-6 font-mono">[ JPG, PNG, WEBP, MP4, MP3 ]</p>
-                    <input type="file" id="file-input"
-                        class="opacity-0 w-full h-full absolute top-0 left-0 cursor-pointer z-10">
-                </div>
-                <div id="error-display"
-                    class="text-alertRed text-sm font-bold mt-6 min-h-[20px] hidden uppercase border border-alertRed inline-block px-4 py-2 bg-alertRed/10">
-                </div>
-            </div>
-
-            <div id="analyzing-screen" class="screen hidden text-center py-12">
-                <h2 id="analyzing-title" class="text-2xl font-bold text-white mb-2 tracking-widest animate-pulse">
-                    PROCESSING_DATA_STREAM...</h2>
-                <p id="fileName" class="text-cyan text-sm mb-8 font-mono">artifact_id: unknown</p>
-
-                <div id="progress-wrapper"
-                    class="w-full max-w-lg mx-auto bg-gray-800 h-6 rounded-full overflow-hidden mb-8 border border-gray-700 relative">
-                    <div id="progress-bar"
-                        class="bg-cyan h-full transition-all duration-300 shadow-[0_0_10px_#00f3ff] flex items-center justify-center text-xs font-bold text-black"
-                        style="width: 0%">0%</div>
-                </div>
-
-                <p id="analyzing-text" class="hidden"></p>
-                <div id="analyzing-loader"
-                    class="loader mt-4 hidden text-neonGreen text-xs space-y-1 text-left max-w-xs mx-auto font-mono">
-                    <p>> extracting_frames...</p>
-                    <p>> initializing_tensor_flow...</p>
-                    <p>> analyzing_spectrum...</p>
-                </div>
-
-                <div class="mt-8">
-                    <button id="cancel-btn"
-                        class="text-xs text-red-500 hover:text-red-400 uppercase tracking-widest border border-red-900 hover:border-red-500 px-4 py-2 transition">[
-                        ABORT_SEQUENCE ]</button>
-                </div>
-            </div>
-
-            <div id="results-screen" class="screen hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Left Column: Media Preview -->
-                    <div id="media-preview"
-                        class="bg-black/50 border border-gray-700 rounded flex items-center justify-center p-2 min-h-[300px] relative">
-                        <div class="absolute top-2 left-2 text-xs text-cyan opacity-50">PREVIEW_MODE</div>
-                        <!-- Media inserted by JS -->
-                    </div>
-
-                    <!-- Right Column: Analysis Details -->
-                    <div class="space-y-6">
-                        <div class="border-b border-gray-800 pb-4">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">FINAL_VERDICT</p>
-                            <h2 id="verdictText" class="text-3xl font-bold text-white mb-1"></h2>
-                            <p class="text-sm text-gray-400">CONFIDENCE_LEVEL: <span id="confidenceScore"
-                                    class="font-bold text-cyan"></span></p>
-                        </div>
-
-                        <div>
-                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">> SYSTEM_ANALYSIS
-                            </h3>
-                            <div id="chiefJudgment" class="forensic-item">
-                                <!-- Content -->
-                            </div>
-                        </div>
-
-                        <!-- Accordion Style Logs -->
-                        <div class="space-y-4">
-                            <details
-                                class="group border border-gray-800 open:border-cyan/30 open:bg-cyan/5 transition-all">
-                                <summary
-                                    class="flex items-center justify-between p-3 cursor-pointer select-none text-sm font-bold text-gray-300 group-open:text-cyan hover:bg-white/5">
-                                    <span>[+] VISUAL_ARTIFACTS</span>
-                                    <span class="text-xs text-gray-600 group-open:text-cyan">EXPAND</span>
-                                </summary>
-                                <div id="visualList"
-                                    class="p-3 pt-0 text-xs space-y-2 border-t border-gray-800/50 mt-2"></div>
-                            </details>
-
-                            <details
-                                class="group border border-gray-800 open:border-cyan/30 open:bg-cyan/5 transition-all">
-                                <summary
-                                    class="flex items-center justify-between p-3 cursor-pointer select-none text-sm font-bold text-gray-300 group-open:text-cyan hover:bg-white/5">
-                                    <span>[+] METADATA_SIGNATURES</span>
-                                    <span class="text-xs text-gray-600 group-open:text-cyan">EXPAND</span>
-                                </summary>
-                                <div id="metadataList"
-                                    class="p-3 pt-0 text-xs space-y-2 border-t border-gray-800/50 mt-2"></div>
-                            </details>
-
-                            <details
-                                class="group border border-gray-800 open:border-cyan/30 open:bg-cyan/5 transition-all">
-                                <summary
-                                    class="flex items-center justify-between p-3 cursor-pointer select-none text-sm font-bold text-gray-300 group-open:text-cyan hover:bg-white/5">
-                                    <span>[+] FORENSIC_DETAILS</span>
-                                    <span class="text-xs text-gray-600 group-open:text-cyan">EXPAND</span>
-                                </summary>
-                                <div id="forensicList"
-                                    class="p-3 pt-0 text-xs space-y-2 border-t border-gray-800/50 mt-2"></div>
-                            </details>
-                        </div>
-
-                        <div class="bg-black/30 p-4 border border-gray-800 mt-6">
-                            <button id="generate-summary-btn" class="btn-cyber w-full text-center text-xs mb-2">
-                                >> COMPILE_MISSION_REPORT
-                            </button>
-                            <button id="download-report-btn"
-                                class="btn-cyber w-full text-center text-xs hidden border-green-500 text-green-500 hover:bg-green-500 hover:text-black">
-                                [ DOWNLOAD_EVIDENCE_PDF ]
-                            </button>
-                            <div id="summary-panel" class="mt-4 text-left border-t border-gray-700 pt-4 hidden">
-                                <h4 class="text-xs font-bold text-cyan uppercase mb-2">MISSION_SUMMARY:</h4>
-                                <p id="summaryText" class="text-gray-400 text-xs leading-relaxed font-mono"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center pt-8 mt-8 border-t border-gray-800">
-                    <button id="reset-btn"
-                        class="text-xs text-gray-500 hover:text-white uppercase tracking-widest transition">
-                        [ RESTART_SEQUENCE ]
-                    </button>
-                </div>
-            </div>
         </main>
     </div>
-
-    <script type="module" src="/app.js"></script>
 </body>
-
 </html>

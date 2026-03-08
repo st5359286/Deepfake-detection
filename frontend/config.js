@@ -1,10 +1,10 @@
-const config = {
-  // Vite exposes env variables via import.meta.env
-  // For production deployment, set VITE_API_URL environment variable
-  // If not set, it will use localhost:3000 for development
-  API_URL:
-    import.meta.env.VITE_API_URL ||
-    (import.meta.env.PROD ? "" : "http://localhost:3000"),
+// Configuration for Deepfake Detector
+// For production, set API_URL to your deployed backend URL
+const API_URL = "http://localhost:3000";
+
+// Make config globally available
+window.config = {
+  API_URL: API_URL,
 };
 
-export default config;
+console.log("Config loaded:", window.config.API_URL);

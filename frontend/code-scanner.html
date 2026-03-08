@@ -1,180 +1,392 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Scanner | Deepfake Detector</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        void: '#0f0f1a',
-                        accent: '#8b5cf6',
-                        'accent-light': '#a78bfa',
-                        'accent-dark': '#7c3aed',
-                        success: '#10b981',
-                        danger: '#ef4444',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="style.css">
+    <title>Code Scanner - Deepfake Detector</title>
+    <link rel="stylesheet" href="modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body {
-            background: #0f0f1a;
-            background-image: 
-                radial-gradient(ellipse at top, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
-        }
-        
-        .upload-area {
-            border: 2px dashed rgba(139, 92, 246, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .upload-area:hover {
-            border-color: #8b5cf6;
-            background: rgba(139, 92, 246, 0.05);
-        }
-        
-        .drop-zone {
-            border: 2px dashed rgba(139, 92, 246, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .drop-zone:hover {
-            border-color: #8b5cf6;
-            background: rgba(139, 92, 246, 0.05);
-        }
-
-        .issue-critical {
-            border-left: 4px solid #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-        }
-        
-        .issue-warning {
-            border-left: 4px solid #f59e0b;
-            background: rgba(245, 158, 11, 0.1);
-        }
-        
-        .issue-info {
-            border-left: 4px solid #3b82f6;
-            background: rgba(59, 130, 246, 0.1);
-        }
+        .scanner-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 0 12px; margin-bottom: 32px; }
+        .sidebar-logo .logo-icon { width: 40px; height: 40px; }
+        .sidebar-logo .logo-text { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+        .sidebar-nav { list-style: none; }
+        .sidebar-nav-item { margin-bottom: 4px; }
+        .sidebar-nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); border-radius: var(--radius-md); font-weight: 500; transition: all 0.2s; text-decoration: none; }
+        .sidebar-nav-link:hover { background: var(--bg-main); color: var(--text-main); }
+        .sidebar-nav-link.active { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .sidebar-nav-icon { font-size: 1.25rem; }
+        .sidebar-divider { height: 1px; background: var(--border); margin: 16px 0; }
+        .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); }
+        .user-info { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: var(--radius-md); margin-bottom: 12px; }
+        .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .user-name { font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+        .main-content { flex: 1; margin-left: 260px; padding: 32px; background: var(--bg-main); min-height: 100vh; }
+        .page-header { margin-bottom: 32px; }
+        .page-title { font-size: 1.75rem; margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-secondary); }
+        .scanner-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .upload-section, .results-section { background: var(--bg-card); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border); }
+        .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+        .drop-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 40px; text-align: center; transition: all 0.3s; cursor: pointer; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
+        .drop-icon { font-size: 3rem; margin-bottom: 16px; }
+        .drop-text { font-weight: 600; margin-bottom: 8px; }
+        .drop-hint { font-size: 0.85rem; color: var(--text-muted); }
+        .file-input { display: none; }
+        .selected-file { display: none; align-items: center; gap: 12px; padding: 16px; background: rgba(79, 70, 229, 0.1); border-radius: var(--radius-md); margin-top: 16px; }
+        .selected-file.show { display: flex; }
+        .file-icon { font-size: 1.5rem; }
+        .file-info { flex: 1; }
+        .file-name { font-weight: 600; }
+        .file-size { font-size: 0.85rem; color: var(--text-muted); }
+        .file-remove { background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted); }
+        .scan-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; margin-top: 16px; width: 100%; }
+        .scan-btn:hover { background: var(--primary-dark); }
+        .scan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .result-card { padding: 16px; border-radius: var(--radius-md); margin-bottom: 12px; }
+        .result-card.error { background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger); }
+        .result-card.warning { background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; }
+        .result-card.success { background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--secondary); }
+        .result-card.info { background: rgba(79, 70, 229, 0.1); border-left: 4px solid var(--primary); }
+        .result-title { font-weight: 700; margin-bottom: 8px; }
+        .result-card.error .result-title { color: var(--danger); }
+        .result-card.warning .result-title { color: #f59e0b; }
+        .result-card.success .result-title { color: var(--secondary); }
+        .result-card.info .result-title { color: var(--primary); }
+        .result-desc { font-size: 0.9rem; line-height: 1.5; }
+        .fix-box { margin-top: 12px; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: var(--radius-md); }
+        .fix-label { font-weight: 600; color: var(--secondary); font-size: 0.85rem; margin-bottom: 8px; }
+        .fix-code { background: #1e1e1e; color: #d4d4d4; padding: 10px; border-radius: var(--radius-sm); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; overflow-x: auto; }
+        .severity-badge { display: inline-block; padding: 4px 8px; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; margin-left: 8px; }
+        .severity-badge.high { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .severity-badge.medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .severity-badge.low { background: rgba(16, 185, 129, 0.2); color: var(--secondary); }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+        .stat-box { text-align: center; padding: 16px; background: var(--bg-main); border-radius: var(--radius-md); }
+        .stat-value { font-size: 1.5rem; font-weight: 700; }
+        .stat-box.errors .stat-value { color: var(--danger); }
+        .stat-box.warnings .stat-value { color: #f59e0b; }
+        .stat-box.fixes .stat-value { color: var(--secondary); }
+        .stat-box.score .stat-value { color: var(--primary); }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); }
+        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .loading-overlay.show { display: flex; }
+        .loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 1024px) { .scanner-container { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 16px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
-
-<body class="bg-[#0f0f1a] text-gray-300 font-sans min-h-screen flex flex-col relative overflow-x-hidden">
-
-    <!-- Background Effects -->
-    <div class="fixed inset-0 pointer-events-none">
-        <div class="absolute top-0 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Scanning code file...</p>
+        </div>
     </div>
 
-    <!-- Header -->
-    <header class="border-b border-gray-800 bg-black/30 backdrop-blur-md sticky top-0 z-50 relative">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <a href="vastav.html" class="text-gray-400 hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                </a>
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-gradient-to-br from-accent to-accent-dark rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                        </svg>
-                    </div>
-                    <h1 class="text-lg font-bold text-white">Code Scanner</h1>
-                </div>
+    <div class="scanner-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🔍</div>
+                <span class="logo-text">Deepfake<br>Detector</span>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
-                <span class="text-xs text-gray-500">System Active</span>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item"><a href="dashboard.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📊</span>Dashboard</a></li>
+                <li class="sidebar-nav-item"><a href="scanner.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">🔍</span>Scanner</a></li>
+                <li class="sidebar-nav-item"><a href="code-scanner.html" class="sidebar-nav-link active"><span class="sidebar-nav-icon">📱</span>Code Scanner</a></li>
+                <li class="sidebar-nav-item"><a href="leetcode.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">💻</span>LeetCode</a></li>
+                <li class="sidebar-nav-item"><a href="live-detection.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📹</span>Live Detection</a></li>
+                <li class="sidebar-nav-item"><a href="result.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📋</span>History</a></li>
+            </ul>
+            <div class="sidebar-divider"></div>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item"><a href="settings.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">⚙️</span>Settings</a></li>
+                <li class="sidebar-nav-item"><a href="help.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">❓</span>Help</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-name" id="userName">User</div>
+                <button class="logout-btn" onclick="logout()"><span>🚪</span>Logout</button>
             </div>
-        </div>
-    </header>
+        </aside>
 
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center relative z-10">
-
-        <!-- Upload Area -->
-        <div class="w-full max-w-2xl">
-            <div class="glass-panel p-8">
-                <div class="text-center mb-8">
-                    <div class="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-bold text-white mb-2">Analyze JavaScript Code</h2>
-                    <p class="text-sm text-gray-500">Upload a .js file to scan for bugs, errors, and security issues</p>
-                </div>
-
-                <!-- File Drop Zone -->
-                <div class="upload-area rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer relative" id="drop-zone">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                    </svg>
-                    <p class="text-base text-white font-medium mb-1">Drop JavaScript file here</p>
-                    <p class="text-sm text-gray-500 mb-4">or click to browse</p>
-                    <span class="btn-primary text-sm">Select File</span>
-                    <input type="file" id="qr-input-file" accept=".js" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                </div>
-
-                <!-- Status Messages -->
-                <div class="mt-4 text-center">
-                    <div id="scan-status" class="text-sm text-accent animate-pulse hidden">Analyzing code...</div>
-                    <div id="file-error" class="text-sm text-danger mt-2 hidden"></div>
-                </div>
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">📱 Code Scanner</h1>
+                <p class="page-subtitle">Upload source code files to detect bugs, security issues, and get fixes</p>
             </div>
-
-            <!-- Results Panel -->
-            <div id="result-panel" class="mt-8 hidden animate-fade-in">
-                <div class="glass-panel p-6 border border-gray-800 rounded-2xl">
-                    <!-- Summary -->
-                    <div id="result-summary" class="mb-6">
-                        <!-- Summary will be populated by JavaScript -->
+            
+            <div class="scanner-container">
+                <div class="upload-section">
+                    <h2 class="section-title">📁 Upload Code File</h2>
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-icon">📂</div>
+                        <div class="drop-text">Drag & drop your code file here</div>
+                        <div class="drop-hint">or click to browse</div>
+                        <div class="drop-hint">Supported: .js, .py, .java, .cpp, .c, .cs, .php, .go, .rs</div>
+                    <input type="file" class="file-input" id="fileInput" accept=".js,.py,.java,.cpp,.c,.cs,.php,.go,.rs,.txt">
+                    
+                    <div class="selected-file" id="selectedFile">
+                        <span class="file-icon">📄</span>
+                        <div class="file-info">
+                            <div class="file-name" id="fileName">filename.js</div>
+                            <div class="file-size" id="fileSize">2.5 KB</div>
+                        <button class="file-remove" onclick="removeFile()">×</button>
                     </div>
-
-                    <!-- Issues List -->
-                    <div id="issues-list" class="space-y-4">
-                        <!-- Issues will be populated by JavaScript -->
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="mt-6 flex justify-between items-center pt-4 border-t border-gray-800">
-                        <button id="copy-btn" class="text-sm bg-black/40 hover:bg-black/60 text-white px-4 py-2 rounded-lg transition">
-                            Copy Report
-                        </button>
-                        <button id="reset-scanner-btn" class="text-sm btn-primary">
-                            Scan Another File
-                        </button>
-                    </div>
+                    
+                    <button class="scan-btn" id="scanBtn" onclick="scanCode()" disabled>🔍 Scan for Issues</button>
                 </div>
+                
+                <div class="results-section">
+                    <h2 class="section-title">📊 Scan Results</h2>
+                    <div class="stats-grid" id="statsGrid" style="display: none;">
+                        <div class="stat-box errors">
+                            <div class="stat-value" id="errorCount">0</div>
+                            <div class="stat-label">Errors</div>
+                        <div class="stat-box warnings">
+                            <div class="stat-value" id="warningCount">0</div>
+                            <div class="stat-label">Warnings</div>
+                        <div class="stat-box fixes">
+                            <div class="stat-value" id="fixCount">0</div>
+                            <div class="stat-label">Fixes</div>
+                        <div class="stat-box score">
+                            <div class="stat-value" id="scoreValue">0%</div>
+                            <div class="stat-label">Score</div>
+                    </div>
+                    <div id="resultsContainer">
+                        <div class="result-card info">
+                            <div class="result-title">📤 Upload a File</div>
+                            <div class="result-desc">Upload a code file to scan for bugs, security issues, and get AI-powered fixes.</div>
+                    </div>
             </div>
-        </div>
+        </main>
+    </div>
 
-    </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-gray-800 bg-black/30 py-4 mt-auto relative z-10">
-        <div class="container mx-auto px-4 text-center text-xs text-gray-600">
-            Deepfake Detector | Code Analysis Module
-        </div>
-    </footer>
-
-    <script src="code-scanner.js"></script>
+    <script src="config.js"></script>
+    <script>
+        var selectedFile = null;
+        
+        function checkAuth() {
+            var user = localStorage.getItem('user');
+            if (!user) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(user);
+        }
+        
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+        
+        var user = checkAuth();
+        if (user) {
+            document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+            document.getElementById('userName').textContent = user.username;
+        }
+        
+        var dropZone = document.getElementById('dropZone');
+        var fileInput = document.getElementById('fileInput');
+        
+        dropZone.addEventListener('click', function() { fileInput.click(); });
+        
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', function() {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+        
+        function handleFileSelect(file) {
+            selectedFile = file;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('selectedFile').classList.add('show');
+            document.getElementById('scanBtn').disabled = false;
+        }
+        
+        function removeFile() {
+            selectedFile = null;
+            fileInput.value = '';
+            document.getElementById('selectedFile').classList.remove('show');
+            document.getElementById('scanBtn').disabled = true;
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            var k = 1024;
+            var sizes = ['Bytes', 'KB', 'MB'];
+            var i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        var securityPatterns = [
+            { pattern: /eval\s*\(/, issue: 'Dangerous eval() usage - code injection risk', severity: 'high', fix: 'Use JSON.parse() or Function constructor safely' },
+            { pattern: /document\.write\s*\(/, issue: 'document.write is deprecated and dangerous', severity: 'high', fix: 'Use DOM manipulation: document.createElement()' },
+            { pattern: /innerHTML\s*=/, issue: 'XSS vulnerability - using innerHTML', severity: 'high', fix: 'Use textContent or sanitize input' },
+            { pattern: /password|pwd|passwd|secret/i, issue: 'Hardcoded password detected', severity: 'medium', fix: 'Use environment variables or secure config' },
+            { pattern: /api[_-]?key|token|auth/i, issue: 'API key or token exposed', severity: 'high', fix: 'Move to environment variables' },
+            { pattern: /http:\/\/(?!localhost)/, issue: 'Insecure HTTP connection', severity: 'medium', fix: 'Use HTTPS for secure connections' },
+            { pattern: /shell\s*\(|exec\s*\(|system\s*\(/, issue: 'Shell command injection risk', severity: 'high', fix: 'Sanitize inputs or use safe alternatives' }
+        ];
+        
+        var bugPatterns = [
+            { pattern: /==(?!=)/, issue: 'Loose equality (==) - type coercion issues', severity: 'medium', fix: 'Use strict equality (===)' },
+            { pattern: /var\s+\w+/, issue: 'Using var - use let or const instead', severity: 'low', fix: 'Replace var with const or let' },
+            { pattern: /for\s*\(\s*var\s+/, issue: 'var in loop - closure issue', severity: 'medium', fix: 'Use let in for loop' },
+            { pattern: /console\.log\s*\(/, issue: 'Console.log in production code', severity: 'low', fix: 'Remove or use proper logger' },
+            { pattern: /alert\s*\(/, issue: 'Blocking alert() call', severity: 'low', fix: 'Use custom modal components' },
+            { pattern: /try\s*\{[^}]*\}.*catch\s*\(\s*\)/, issue: 'Empty catch block - silent failures', severity: 'medium', fix: 'Log errors properly' },
+            { pattern: /return\s*[^;]*==.*;/, issue: 'Assignment in return statement', severity: 'medium', fix: 'Separate assignment and return' }
+        ];
+        
+        async function scanCode() {
+            if (!selectedFile) {
+                alert('Please select a file first!');
+                return;
+            }
+            
+            document.getElementById('loadingOverlay').classList.add('show');
+            
+            try {
+                var code = await selectedFile.text();
+                var results = analyzeCode(code);
+                displayResults(results);
+            } catch (error) {
+                console.error('Error reading file:', error);
+                alert('Error reading file. Please try again.');
+            }
+            
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+        
+        function analyzeCode(code) {
+            var results = [];
+            var errors = 0;
+            var warnings = 0;
+            var fixes = 0;
+            var lines = code.split('\n');
+            
+            securityPatterns.forEach(function(item) {
+                lines.forEach(function(line, index) {
+                    if (item.pattern.test(line)) {
+                        if (item.severity === 'high') errors++;
+                        else warnings++;
+                        fixes++;
+                        results.push({
+                            type: 'error',
+                            title: '🔒 Security Issue',
+                            severity: item.severity,
+                            line: 'Line ' + (index + 1),
+                            desc: item.issue,
+                            fix: item.fix
+                        });
+                    }
+                });
+            });
+            
+            bugPatterns.forEach(function(item) {
+                lines.forEach(function(line, index) {
+                    if (item.pattern.test(line)) {
+                        if (item.severity === 'high') errors++;
+                        else warnings++;
+                        fixes++;
+                        results.push({
+                            type: item.severity === 'low' ? 'warning' : 'error',
+                            title: item.severity === 'low' ? '⚠️ Warning' : '🐛 Bug',
+                            severity: item.severity,
+                            line: 'Line ' + (index + 1),
+                            desc: item.issue,
+                            fix: item.fix
+                        });
+                    }
+                });
+            });
+            
+            if (!code.includes('error') && !code.includes('catch') && !code.includes('try')) {
+                warnings++;
+                fixes++;
+                results.push({
+                    type: 'warning',
+                    title: '⚠️ Missing Error Handling',
+                    severity: 'low',
+                    line: 'File',
+                    desc: 'No error handling found. Add try-catch blocks.',
+                    fix: 'try { /* code */ } catch (err) { console.error(err); }'
+                });
+            }
+            
+            if (results.length === 0) {
+                results.push({
+                    type: 'success',
+                    title: '✅ No Issues Found',
+                    severity: 'low',
+                    line: 'File',
+                    desc: 'Your code looks clean! No bugs or security issues detected.',
+                    fix: null
+                });
+            }
+            
+            var score = Math.max(0, 100 - (errors * 15) - (warnings * 5));
+            
+            return { results: results, errors: errors, warnings: warnings, fixes: fixes, score: score };
+        }
+        
+        function displayResults(data) {
+            var statsGrid = document.getElementById('statsGrid');
+            var resultsContainer = document.getElementById('resultsContainer');
+            
+            document.getElementById('errorCount').textContent = data.errors;
+            document.getElementById('warningCount').textContent = data.warnings;
+            document.getElementById('fixCount').textContent = data.fixes;
+            document.getElementById('scoreValue').textContent = data.score + '%';
+            
+            statsGrid.style.display = 'grid';
+            
+            var html = '';
+            data.results.forEach(function(result) {
+                var cardClass = result.type;
+                html += '<div class="result-card ' + cardClass + '">';
+                html += '<div class="result-title">' + result.title;
+                html += '<span class="severity-badge ' + result.severity + '">' + result.severity.toUpperCase() + '</span>';
+                html += '</div>';
+                html += '<div class="result-desc">' + result.line + ': ' + result.desc + '</div>';
+                if (result.fix) {
+                    html += '<div class="fix-box">';
+                    html += '<div class="fix-label">🔧 Recommended Fix</div>';
+                    html += '<div class="fix-code">' + result.fix + '</div>';
+                    html += '</div>';
+                }
+                html += '</div>';
+            });
+            
+            resultsContainer.innerHTML = html;
+        }
+    </script>
 </body>
-
 </html>
-

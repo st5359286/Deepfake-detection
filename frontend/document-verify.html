@@ -1,209 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Verification | Deepfake Detector</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        void: '#0f0f1a',
-                        accent: '#8b5cf6',
-                        'accent-light': '#a78bfa',
-                        'accent-dark': '#7c3aed',
-                        success: '#10b981',
-                        warning: '#f59e0b',
-                        danger: '#ef4444',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="style.css">
+    <title>Document Verification - Deepfake Detector</title>
+    <link rel="stylesheet" href="modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
-            background: #0f0f1a;
-            background-image: 
-                radial-gradient(ellipse at top, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            background: var(--bg-main);
         }
         
-        .drop-zone {
-            border: 2px dashed rgba(139, 92, 246, 0.3);
-            transition: all 0.3s ease;
+        .doc-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
-        .drop-zone:hover,
-        .drop-zone.dragover {
-            border-color: #8b5cf6;
-            background: rgba(139, 92, 246, 0.05);
+        .doc-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
         }
         
-        .loader-spin {
-            animation: spin 1s linear infinite;
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .doc-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px;
+        }
+        
+        .doc-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .doc-icon {
+            font-size: 5rem;
+            margin-bottom: 24px;
+        }
+        
+        .doc-title {
+            font-size: 1.75rem;
+            margin-bottom: 12px;
+        }
+        
+        .doc-desc {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 1.05rem;
+        }
+        
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 24px;
+        }
+        
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.04);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .upload-text {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .upload-hint {
+            color: var(--text-muted);
+            font-size: 0.9rem;
         }
     </style>
 </head>
-
-<body class="bg-[#0f0f1a] text-gray-300 font-sans min-h-screen flex flex-col relative overflow-x-hidden">
-
-    <!-- Background Effects -->
-    <div class="fixed inset-0 pointer-events-none">
-        <div class="absolute top-0 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-    </div>
-
-    <!-- Header -->
-    <header class="border-b border-gray-800 bg-black/30 backdrop-blur-md sticky top-0 z-50 relative">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <a href="vastav.html" class="text-gray-400 hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+<body>
+    <div class="doc-page">
+        <header class="doc-header">
+            <div class="header-inner">
+                <a href="dashboard.html" class="logo">
+                    <div class="logo-icon">🔍</div>
+                    Deepfake Detector
                 </a>
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-gradient-to-br from-accent to-accent-dark rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <h1 class="text-lg font-bold text-white">Document Verification</h1>
-                </div>
+                <a href="dashboard.html" style="color: var(--text-secondary); font-weight: 500;">
+                    ← Back to Dashboard
+                </a>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-warning rounded-full animate-pulse"></span>
-                <span class="text-xs text-gray-500">Enhanced Security</span>
+        </header>
+        
+        <main class="doc-main">
+            <div class="doc-card">
+                <div class="doc-icon">📄</div>
+                <h1 class="doc-title">Document Verification</h1>
+                <p class="doc-desc">
+                    Upload identity documents for authenticity verification. Our AI analyzes document features to detect potential forgeries.
+                </p>
+                
+                <div class="upload-zone" onclick="document.querySelector('#docInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to upload document</div>
+                    <div class="upload-hint">Supports: PDF, JPG, PNG (Max 10MB)</div>
+                    <input type="file" id="docInput" style="display: none;" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+                
+                <button class="btn btn-primary" style="width: 100%;">
+                    📋 Verify Document
+                </button>
             </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center relative z-10">
-
-        <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-white mb-2">Identity Document Analysis</h2>
-            <p class="text-gray-500">Upload Passport, ID Card, or Driver's License for verification</p>
-        </div>
-
-        <!-- Upload Section -->
-        <div id="upload-section" class="w-full max-w-2xl">
-            <div id="drop-zone" class="drop-zone glass-panel rounded-2xl p-12 flex flex-col items-center justify-center cursor-pointer">
-                <div class="w-20 h-20 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                </div>
-                <div class="text-center">
-                    <p class="text-xl text-white font-semibold mb-2">Drag & Drop Document</p>
-                    <p class="text-sm text-gray-500 mb-6">Support: PDF, JPG, PNG (Max 10MB)</p>
-                    <label for="file-input" class="btn-primary cursor-pointer inline-flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                        </svg>
-                        Browse Files
-                    </label>
-                    <input type="file" id="file-input" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-                </div>
-            </div>
-        </div>
-
-        <!-- Analysis Loader -->
-        <div id="loader-section" class="w-full max-w-2xl hidden flex flex-col items-center">
-            <div class="w-20 h-20 border-4 border-accent border-t-transparent rounded-full loader-spin mb-6"></div>
-            <p class="text-accent font-medium animate-pulse mb-2">Performing OCR Analysis...</p>
-            <p class="text-xs text-gray-500">Checking Holograms / Validating Checksums / Analyzing Metadata</p>
-        </div>
-
-        <!-- Results Section -->
-        <div id="results-section" class="w-full max-w-3xl hidden">
-            <div class="glass-panel rounded-2xl overflow-hidden">
-                <!-- Header -->
-                <div class="bg-black/40 p-4 border-b border-gray-800 flex justify-between items-center">
-                    <h3 class="font-bold text-white">Analysis Report</h3>
-                    <span id="doc-status" class="badge badge-success">Verified</span>
-                </div>
-
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Document Preview -->
-                    <div>
-                        <h4 class="text-xs text-gray-500 mb-2 uppercase">Document Preview</h4>
-                        <div id="doc-preview" class="w-full h-48 bg-black/50 rounded-xl border border-gray-800 flex items-center justify-center overflow-hidden">
-                        </div>
-                    </div>
-
-                    <!-- Details -->
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="text-xs text-gray-500 mb-1 uppercase">Extracted Data</h4>
-                            <div class="bg-black/30 p-3 rounded-xl text-sm text-gray-300 font-mono space-y-1">
-                                <p>NAME: <span id="res-name" class="text-white">-</span></p>
-                                <p>DOC ID: <span id="res-id" class="text-white">-</span></p>
-                                <p>EXPIRY: <span id="res-expiry" class="text-white">-</span></p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="text-xs text-gray-500 mb-2 uppercase">Forensic Checks</h4>
-                            <ul class="space-y-2 text-sm">
-                                <li class="flex justify-between items-center">
-                                    <span class="text-gray-400">Hologram Integrity</span>
-                                    <span class="text-success font-medium">PASS</span>
-                                </li>
-                                <li class="flex justify-between items-center">
-                                    <span class="text-gray-400">Font Consistency</span>
-                                    <span class="text-success font-medium">PASS</span>
-                                </li>
-                                <li class="flex justify-between items-center">
-                                    <span class="text-gray-400">EXIF Metadata</span>
-                                    <span class="text-warning font-medium">WARNING</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Summary -->
-                <div class="bg-black/40 p-6 border-t border-gray-800">
-                    <h4 class="text-xs font-semibold text-accent uppercase mb-3">Intelligence Summary</h4>
-                    <div class="bg-black/30 p-4 rounded-xl border border-gray-800">
-                        <p id="doc-summary-text" class="text-gray-300 text-sm leading-relaxed">
-                            Analyzing document integrity...
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-black/40 p-4 border-t border-gray-800 text-center">
-                    <button id="reset-btn" class="text-accent hover:text-white text-sm transition">
-                        Analyze Another Document
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-gray-800 bg-black/30 py-4 mt-auto relative z-10">
-        <div class="container mx-auto px-4 text-center text-xs text-gray-600">
-            Deepfake Detector | Document Verification Module
-        </div>
-    </footer>
-
-    <script src="document.js"></script>
+        </main>
+    </div>
 </body>
-
 </html>
-

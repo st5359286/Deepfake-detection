@@ -1,171 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analysis Result | Deepfake Detector</title>
-  <!-- Use the Tailwind Play CDN for development -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            void: '#0f172a',
-            cyan: '#3b82f6',
-            neonGreen: '#22c55e',
-            alertRed: '#ef4444',
-          },
-          fontFamily: {
-            mono: ['"Inter"', 'sans-serif'],
-          },
-        }
-      }
-    }
-  </script>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Deepfake Detector</title>
+    <link rel="stylesheet" href="modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .results-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 0 12px; margin-bottom: 32px; }
+        .sidebar-logo .logo-icon { width: 40px; height: 40px; }
+        .sidebar-logo .logo-text { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+        .sidebar-nav { list-style: none; }
+        .sidebar-nav-item { margin-bottom: 4px; }
+        .sidebar-nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); border-radius: var(--radius-md); font-weight: 500; transition: all 0.2s; }
+        .sidebar-nav-link:hover { background: var(--bg-main); color: var(--text-main); }
+        .sidebar-nav-link.active { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .sidebar-nav-icon { font-size: 1.25rem; }
+        .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); }
+        .user-info { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: var(--radius-md); margin-bottom: 12px; }
+        .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .user-name { font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+        .main-content { flex: 1; margin-left: 260px; padding: 32px; background: var(--bg-main); min-height: 100vh; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .page-title { font-size: 1.75rem; margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-secondary); }
+        .results-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+        .stat-box { background: var(--bg-card); border-radius: var(--radius-md); padding: 20px; text-align: center; border: 1px solid var(--border); }
+        .stat-box-value { font-size: 1.5rem; font-weight: 800; }
+        .stat-box-label { font-size: 0.875rem; color: var(--text-muted); }
+        .stat-box.total .stat-box-value { color: var(--primary); }
+        .stat-box.real .stat-box-value { color: var(--secondary); }
+        .stat-box.fake .stat-box-value { color: var(--danger); }
+        .results-card { background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border); overflow: hidden; }
+        .results-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .results-title { font-size: 1.25rem; }
+        .filter-select { padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); font-size: 0.9rem; }
+        .results-list { list-style: none; }
+        .result-item { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
+        .result-item:hover { background: var(--bg-main); }
+        .result-item:last-child { border-bottom: none; }
+        .result-icon { width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .result-icon.real { background: rgba(16, 185, 129, 0.1); color: var(--secondary); }
+        .result-icon.fake { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .result-info { flex: 1; }
+        .result-filename { font-weight: 600; margin-bottom: 4px; }
+        .result-date { font-size: 0.875rem; color: var(--text-muted); }
+        .result-confidence { text-align: right; }
+        .confidence-value { font-size: 1.25rem; font-weight: 700; }
+        .confidence-value.real { color: var(--secondary); }
+        .confidence-value.fake { color: var(--danger); }
+        .confidence-label { font-size: 0.75rem; color: var(--text-muted); }
+        .result-badge { padding: 6px 12px; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .result-badge.real { background: rgba(16, 185, 129, 0.1); color: var(--secondary); }
+        .result-badge.fake { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-icon { font-size: 4rem; margin-bottom: 16px; opacity: 0.3; }
+        .empty-title { font-size: 1.25rem; margin-bottom: 8px; }
+        .empty-desc { color: var(--text-muted); }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 16px; } .results-stats { grid-template-columns: 1fr; } }
+    </style>
 </head>
-
-<body class="bg-void text-gray-300 font-sans min-h-screen relative overflow-x-hidden">
-
-  <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-5xl relative z-10">
-    <header class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-      <div>
-        <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-          Analysis Report
-        </h1>
-        <p class="text-sm text-gray-500 mt-1">Deep Neural Analysis Module</p>
-      </div>
-      <button onclick="window.location.href='/vastav.html'"
-        class="text-sm font-medium text-gray-400 hover:text-white flex items-center gap-2 transition">
-        <span class="text-xl">«</span> Scan New File
-      </button>
-    </header>
-
-    <main class="glass-panel p-8 relative bg-slate-800 border-slate-700">
-
-      <div id="results-screen" class="screen active">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- Left Column: Media Preview -->
-          <div id="media-preview"
-            class="bg-black/50 border border-gray-700 rounded flex items-center justify-center p-2 min-h-[300px] relative">
-            <div class="absolute top-2 left-2 text-xs text-cyan opacity-50">PREVIEW_MODE</div>
-            <!-- Media inserted by JS -->
-            <div id="preview-placeholder" class="text-gray-600 text-sm">Loading Preview...</div>
-          </div>
-
-          <!-- Right Column: Analysis Details -->
-          <div class="space-y-6">
-            <div class="border-b border-gray-800 pb-4">
-              <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">FINAL_VERDICT</p>
-              <h2 id="verdictText" class="text-3xl font-bold text-white mb-1">ANALYZING...</h2>
-              <p class="text-sm text-gray-400">CONFIDENCE_LEVEL: <span id="confidenceScore"
-                  class="font-bold text-cyan">...</span></p>
+<body>
+    <div class="results-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo"><div class="logo-icon">🔍</div><span class="logo-text">Deepfake<br>Detector</span></div>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item"><a href="dashboard.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📊</span>Dashboard</a></li>
+                <li class="sidebar-nav-item"><a href="scanner.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">🔍</span>Scanner</a></li>
+                <li class="sidebar-nav-item"><a href="live-detection.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📹</span>Live Detection</a></li>
+                <li class="sidebar-nav-item"><a href="result.html" class="sidebar-nav-link active"><span class="sidebar-nav-icon">📋</span>History</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-info"><div class="user-avatar" id="userAvatar">U</div><div class="user-name" id="userName">User</div></div>
+                <button class="logout-btn" onclick="logout()"><span>🚪</span>Logout</button>
             </div>
-
-            <!-- Analysis Visuals -->
-            <div id="visuals-container" class="space-y-6">
-
-              <!-- Feature Confidence Bars -->
-              <div>
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">> MODEL_CONFIDENCE_BREAKDOWN
-                </h3>
-                <div id="feature-graph" class="space-y-3">
-                  <!-- Bars injected by JS -->
-                </div>
-              </div>
-
-              <!-- Timeline (Video/Audio only) -->
-              <div id="timeline-section" class="hidden">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">> TEMPORAL_INTEGRITY_TIMELINE
-                </h3>
-                <div class="relative h-8 bg-gray-900/50 rounded overflow-hidden border border-gray-700 flex item-center"
-                  id="timeline-container">
-                  <!-- Segments injected by JS -->
-                </div>
-                <div class="flex justify-between text-[10px] text-gray-500 font-mono mt-1">
-                  <span>00:00</span>
-                  <span>END_OF_STREAM</span>
-                </div>
-                <div class="flex gap-4 mt-2">
-                  <div class="flex items-center gap-1">
-                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div><span
-                      class="text-[10px] text-gray-400">AUTHENTIC</span>
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <div class="w-2 h-2 bg-red-500 rounded-full"></div><span
-                      class="text-[10px] text-gray-400">MANIPULATED</span>
-                  </div>
-                </div>
-              </div>
+        </aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div><h1 class="page-title">Analysis History</h1><p class="page-subtitle">View all your previous deepfake analyses</p></div>
             </div>
-
-            <div>
-              <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">> SYSTEM_ANALYSIS
-              </h3>
-              <div id="chiefJudgment" class="forensic-item">
-                <!-- Content -->
-              </div>
+            <div class="results-stats">
+                <div class="stat-box total"><div class="stat-box-value" id="totalCount">0</div><div class="stat-box-label">Total Analyses</div></div>
+                <div class="stat-box real"><div class="stat-box-value" id="realCount">0</div><div class="stat-box-label">Authentic</div></div>
+                <div class="stat-box fake"><div class="stat-box-value" id="fakeCount">0</div><div class="stat-box-label">Deepfakes</div></div>
             </div>
-
-            <!-- Accordion Style Logs -->
-            <div class="space-y-4">
-              <details class="group border border-gray-800 open:border-cyan/30 open:bg-cyan/5 transition-all">
-                <summary
-                  class="flex items-center justify-between p-3 cursor-pointer select-none text-sm font-bold text-gray-300 group-open:text-cyan hover:bg-white/5">
-                  <span>[+] VISUAL_ARTIFACTS</span>
-                  <span class="text-xs text-gray-600 group-open:text-cyan">EXPAND</span>
-                </summary>
-                <div id="visualList" class="p-3 pt-0 text-xs space-y-2 border-t border-gray-800/50 mt-2"></div>
-              </details>
-
-              <details class="group border border-gray-800 open:border-cyan/30 open:bg-cyan/5 transition-all">
-                <summary
-                  class="flex items-center justify-between p-3 cursor-pointer select-none text-sm font-bold text-gray-300 group-open:text-cyan hover:bg-white/5">
-                  <span>[+] METADATA_SIGNATURES</span>
-                  <span class="text-xs text-gray-600 group-open:text-cyan">EXPAND</span>
-                </summary>
-                <div id="metadataList" class="p-3 pt-0 text-xs space-y-2 border-t border-gray-800/50 mt-2"></div>
-              </details>
-
-              <details class="group border border-gray-800 open:border-cyan/30 open:bg-cyan/5 transition-all">
-                <summary
-                  class="flex items-center justify-between p-3 cursor-pointer select-none text-sm font-bold text-gray-300 group-open:text-cyan hover:bg-white/5">
-                  <span>[+] FORENSIC_DETAILS</span>
-                  <span class="text-xs text-gray-600 group-open:text-cyan">EXPAND</span>
-                </summary>
-                <div id="forensicList" class="p-3 pt-0 text-xs space-y-2 border-t border-gray-800/50 mt-2"></div>
-              </details>
+            <div class="results-card">
+                <div class="results-header"><h2 class="results-title">Recent Analyses</h2><select class="filter-select" id="filterSelect" onchange="filterResults()"><option value="all">All Results</option><option value="real">Authentic Only</option><option value="fake">Deepfakes Only</option></select></div>
+                <ul class="results-list" id="resultsList">
+                    <li class="empty-state"><div class="empty-icon">📋</div><h3 class="empty-title">No results yet</h3><p class="empty-desc">Start analyzing files to see your history here</p></li>
+                </ul>
             </div>
-
-            <div class="bg-black/30 p-4 border border-gray-800 mt-6">
-              <button id="generate-summary-btn" class="btn-cyber w-full text-center text-xs mb-2">
-                >> COMPILE_MISSION_REPORT
-              </button>
-              <button id="download-report-btn"
-                class="btn-cyber w-full text-center text-xs hidden border-green-500 text-green-500 hover:bg-green-500 hover:text-black">
-                [ DOWNLOAD_EVIDENCE_PDF ]
-              </button>
-              <div id="summary-panel" class="mt-4 text-left border-t border-gray-700 pt-4 hidden">
-                <h4 class="text-xs font-bold text-cyan uppercase mb-2">MISSION_SUMMARY:</h4>
-                <p id="summaryText" class="text-gray-400 text-xs leading-relaxed font-mono"></p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="text-center pt-8 mt-8 border-t border-gray-800">
-          <button onclick="window.location.href='/vastav.html'"
-            class="text-xs text-gray-500 hover:text-white uppercase tracking-widest transition">
-            [ ANALYZE_NEW_TARGET ]
-          </button>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- Load the result logic -->
-  <script type="module" src="/result.js"></script>
+        </main>
+    </div>
+    <script src="config.js"></script>
+    <script>
+        function checkAuth() { var user = localStorage.getItem('user'); if (!user) { window.location.href = 'login.html'; return null; } return JSON.parse(user); }
+        function logout() { localStorage.removeItem('user'); window.location.href = 'login.html'; }
+        var results = [
+            { id: 1, filename: 'image_001.jpg', type: 'image', is_deepfake: false, confidence: 92, date: '2024-01-15 10:30' },
+            { id: 2, filename: 'video_demo.mp4', type: 'video', is_deepfake: true, confidence: 87, date: '2024-01-14 15:45' },
+            { id: 3, filename: 'audio_sample.wav', type: 'audio', is_deepfake: false, confidence: 95, date: '2024-01-13 09:20' },
+        ];
+        var user = checkAuth();
+        if (user) { document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase(); document.getElementById('userName').textContent = user.username; renderResults(); }
+        function renderResults(filter) { if (filter === undefined) filter = 'all'; var list = document.getElementById('resultsList'); var filtered = filter === 'all' ? results : results.filter(function(r) { return filter === 'real' ? !r.is_deepfake : r.is_deepfake; }); if (filtered.length === 0) { list.innerHTML = '<li class="empty-state"><div class="empty-icon">📋</div><h3 class="empty-title">No results found</h3><p class="empty-desc">No analyses match the selected filter</p></li>'; return; } list.innerHTML = filtered.map(function(result) { return '<li class="result-item"><div class="result-icon ' + (result.is_deepfake ? 'fake' : 'real') + '">' + (result.is_deepfake ? '⚠️' : '✅') + '</div><div class="result-info"><div class="result-filename">' + result.filename + '</div><div class="result-date">' + result.date + '</div></div><div class="result-confidence"><div class="confidence-value ' + (result.is_deepfake ? 'fake' : 'real') + '">' + result.confidence + '%</div><div class="confidence-label">Confidence</div></div><span class="result-badge ' + (result.is_deepfake ? 'fake' : 'real') + '">' + (result.is_deepfake ? 'Deepfake' : 'Authentic') + '</span></li>'; }).join(''); document.getElementById('totalCount').textContent = results.length; document.getElementById('realCount').textContent = results.filter(function(r) { return !r.is_deepfake; }).length; document.getElementById('fakeCount').textContent = results.filter(function(r) { return r.is_deepfake; }).length; }
+        function filterResults() { var filter = document.getElementById('filterSelect').value; renderResults(filter); }
+    </script>
 </body>
-
 </html>
+

@@ -1,170 +1,589 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Deepfake Detector</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        void: '#0f172a',
-                        cyan: '#3b82f6',
-                        neonGreen: '#22c55e',
-                        alertRed: '#ef4444',
-                    },
-                    fontFamily: {
-                        mono: ['"Inter"', 'sans-serif'],
-                    },
-                }
+    <title>Dashboard - Deepfake Detector</title>
+    <link rel="stylesheet" href="modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px;
+            margin-bottom: 32px;
+        }
+        
+        .sidebar-logo .logo-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .sidebar-logo .logo-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        
+        .sidebar-nav {
+            list-style: none;
+        }
+        
+        .sidebar-nav-item {
+            margin-bottom: 4px;
+        }
+        
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .sidebar-nav-link:hover {
+            background: var(--bg-main);
+            color: var(--text-main);
+        }
+        
+        .sidebar-nav-link.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+        }
+        
+        .sidebar-nav-icon {
+            font-size: 1.25rem;
+        }
+        
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 24px 0;
+        }
+        
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-main);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+        
+        .user-email {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .logout-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 32px;
+            background: var(--bg-main);
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            color: var(--text-secondary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .quick-upload {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            margin-bottom: 32px;
+        }
+        
+        .quick-upload-title {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+        
+        .quick-upload-desc {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .upload-option {
+            padding: 24px;
+            background: var(--bg-main);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .upload-option:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.04);
+        }
+        
+        .upload-option-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+        
+        .upload-option-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .upload-option-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .recent-activity {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+        }
+        
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-main);
+            border-radius: var(--radius-md);
+        }
+        
+        .activity-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .activity-icon.real {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+        
+        .activity-icon.fake {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .activity-info {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .activity-badge {
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .activity-badge.real {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+        
+        .activity-badge.fake {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .loading-overlay.hidden {
+            display: none;
+        }
+        
+        .loading-content {
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 1024px) {
+            .upload-grid {
+                grid-template-columns: 1fr;
             }
         }
-    </script>
-    <link rel="stylesheet" href="style.css">
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+        }
+    </style>
 </head>
-
-<body class="bg-void text-gray-300 font-sans min-h-screen relative overflow-x-hidden">
-
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8 relative z-10">
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-2xl font-bold text-white flex items-center gap-3">
-                <div class="w-2 h-8 bg-blue-500 rounded-sm"></div>
-                <span id="welcome-message">Dashboard</span>
-            </h1>
-            <button id="logout-button"
-                class="bg-red-500/10 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-medium py-2 px-6 rounded transition text-sm">
-                Log Out
-            </button>
-        </header>
-
-        <!-- User Dashboard View -->
-        <main id="user-dashboard" class="grid grid-cols-1 md:grid-cols-3 gap-6 hidden">
-            <!-- Call to Action -->
-            <div
-                class="md:col-span-2 glass-panel p-8 flex flex-col items-center justify-center text-center group bg-slate-800 border-slate-700">
-                <h2 class="text-3xl font-bold text-white mb-4">Start Analysis</h2>
-                <p class="text-gray-400 mb-8 max-w-lg">Upload media files for deep neural network scanning and
-                    verification.</p>
-                <a href="/vastav.html"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition shadow-lg shadow-blue-500/30">
-                    Open Analysis Tool
-                </a>
+<body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Loading dashboard...</p>
+        </div>
+    </div>
+    
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🔍</div>
+                <span class="logo-text">Deepfake<br>Detector</span>
             </div>
-
-            <!-- Profile Card -->
-            <div class="glass-panel p-6 relative overflow-hidden bg-slate-800 border-slate-700">
-                <h3 class="text-lg font-bold text-blue-400 mb-4 border-b border-gray-700 pb-2">
-                    Profile</h3>
-                <div id="user-details" class="space-y-4 text-sm">
+            
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link active">
+                        <span class="sidebar-nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="scanner.html" class="sidebar-nav-link">
+                        <span class="sidebar-nav-icon">🔍</span>
+                        Scanner
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="code-scanner.html" class="sidebar-nav-link">
+                        <span class="sidebar-nav-icon">📱</span>
+                        Code Scanner
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="leetcode.html" class="sidebar-nav-link">
+                        <span class="sidebar-nav-icon">💻</span>
+                        LeetCode
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="live-detection.html" class="sidebar-nav-link">
+                        <span class="sidebar-nav-icon">📹</span>
+                        Live Detection
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="result.html" class="sidebar-nav-link">
+                        <span class="sidebar-nav-icon">📋</span>
+                        History
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-divider"></div>
+            
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="settings.html" class="sidebar-nav-link">
+                        <span class="sidebar-nav-icon">⚙️</span>
+                        Settings
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="help.html" class="sidebar-nav-link">
+                        <span class="sidebar-nav-icon">❓</span>
+                        Help
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
                     <div>
-                        <span class="text-gray-500 block text-xs uppercase mb-1">User ID</span>
-                        <span id="user-id" class="text-white font-medium">...</span>
+                        <div class="user-name" id="userName">User</div>
+                        <div class="user-email" id="userEmail">user@email.com</div>
                     </div>
-                    <div>
-                        <span class="text-gray-500 block text-xs uppercase mb-1">Username</span>
-                        <span id="user-username" class="text-white font-medium">...</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <span>🚪</span>
+                    Logout
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Welcome back, <span id="welcomeName">User</span>!</h1>
+                <p class="page-subtitle">Here's what's happening with your deepfake detection</p>
+            </div>
+            
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">📊</div>
+                    <div class="stat-value" id="totalAnalyses">0</div>
+                    <div class="stat-label">Total Analyses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">✅</div>
+                    <div class="stat-value" id="authenticCount">0</div>
+                    <div class="stat-label">Authentic Files</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">⚠️</div>
+                    <div class="stat-value" id="fakeCount">0</div>
+                    <div class="stat-label">Deepfakes Detected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon yellow">📈</div>
+                    <div class="stat-value" id="todayAnalyses">0</div>
+                    <div class="stat-label">Today's Analyses</div>
+                </div>
+            </div>
+            
+            <!-- Quick Upload -->
+            <div class="quick-upload">
+                <h2 class="quick-upload-title">Quick Analysis</h2>
+                <p class="quick-upload-desc">Choose a file type to analyze</p>
+                
+                <div class="upload-grid">
+                    <div class="upload-option" onclick="redirectToScanner('image')">
+                        <div class="upload-option-icon">🖼️</div>
+                        <div class="upload-option-title">Image</div>
+                        <div class="upload-option-desc">Detect manipulated images</div>
                     </div>
-                    <div>
-                        <span class="text-gray-600 block text-xs">COMM_LINK</span>
-                        <span id="user-email" class="text-white break-all">...</span>
+                    <div class="upload-option" onclick="redirectToScanner('video')">
+                        <div class="upload-option-icon">🎬</div>
+                        <div class="upload-option-title">Video</div>
+                        <div class="upload-option-desc">Analyze video files</div>
                     </div>
-                    <div>
-                        <span class="text-gray-600 block text-xs">ACCESS_LEVEL</span>
-                        <span id="user-role" class="text-neonGreen uppercase font-bold">...</span>
+                    <div class="upload-option" onclick="redirectToScanner('audio')">
+                        <div class="upload-option-icon">🔊</div>
+                        <div class="upload-option-title">Audio</div>
+                        <div class="upload-option-desc">Identify fake audio</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Stats & Activity -->
-            <div class="md:col-span-3 glass-panel p-6">
-                <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-2">
-                    <h2 class="text-lg font-bold text-white tracking-widest">> ACTIVITY_LOG</h2>
-                    <button id="export-btn"
-                        class="text-neonGreen hover:text-white text-xs uppercase font-bold flex items-center gap-2 border border-transparent hover:border-neonGreen px-3 py-1 transition">
-                        <span>DOWNLOAD_CSV</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                    </button>
+            
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Activity</h2>
+                    <a href="result.html" class="btn btn-sm btn-secondary">View All</a>
                 </div>
-
-                <!-- Metrics -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-black/40 border border-gray-800 p-4 text-center">
-                        <p class="text-gray-500 text-xs uppercase mb-1">SCANS_TODAY</p>
-                        <p id="stat-analyses-today" class="text-4xl font-bold text-cyan">0</p>
+                
+                <div class="activity-list" id="activityList">
+                    <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <p>No recent activity</p>
+                        <p style="font-size: 0.9rem;">Start analyzing files to see your history here</p>
                     </div>
-                    <div class="bg-black/40 border border-gray-800 p-4 text-center">
-                        <p class="text-gray-500 text-xs uppercase mb-1">TOTAL_SCANS</p>
-                        <p id="stat-total-analyses" class="text-4xl font-bold text-white">0</p>
-                    </div>
-                    <div class="bg-black/40 border border-gray-800 p-4 text-center">
-                        <p class="text-gray-500 text-xs uppercase mb-1">AVG_CONFIDENCE</p>
-                        <p id="stat-avg-confidence" class="text-4xl font-bold text-neonGreen">0%</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Admin Dashboard View -->
-        <main id="admin-dashboard" class="space-y-8 hidden">
-            <!-- Admin Stats Cards -->
-            <div id="admin-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div class="glass-panel p-6 text-center border-t-4 border-t-white">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">REGISTERED_USERS</h3>
-                    <p id="admin-total-users" class="text-4xl font-bold mt-4 text-white">Loading...</p>
-                </div>
-                <div class="glass-panel p-6 text-center border-t-4 border-t-cyan">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">TOTAL_SCANS</h3>
-                    <p id="admin-total-scans" class="text-4xl font-bold mt-4 text-cyan">Loading...</p>
-                </div>
-                <div class="glass-panel p-6 text-center border-t-4 border-t-alertRed">
-                    <h3 class="text-gray-500 text-xs font-bold uppercase tracking-widest">DEEPFAKES_DETECTED</h3>
-                    <p id="admin-total-fakes" class="text-4xl font-bold mt-4 text-alertRed font-mono animate-pulse">
-                        Loading...</p>
-                </div>
-            </div>
-
-            <div class="glass-panel p-6">
-                <h2 class="text-xl font-bold text-white mb-6 border-b border-gray-800 pb-2">> SYSTEM_TOOLS</h2>
-                <div class="flex flex-wrap gap-4">
-                    <a href="/vastav.html?type=image" class="btn-cyber text-sm">SCAN_IMAGE</a>
-                    <a href="/vastav.html?type=video" class="btn-cyber text-sm">SCAN_VIDEO</a>
-                    <a href="/vastav.html?type=audio" class="btn-cyber text-sm">SCAN_AUDIO</a>
-                </div>
-            </div>
-
-            <div class="glass-panel p-0 overflow-hidden">
-                <div class="p-6 border-b border-gray-800">
-                    <h2 class="text-xl font-bold text-white">> NETWORK_TRAFFIC_LOG</h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm font-mono text-gray-400">
-                        <thead class="bg-black/60 text-cyan uppercase text-xs tracking-wider">
-                            <tr>
-                                <th class="px-6 py-4 border-b border-gray-800">USER_ID</th>
-                                <th class="px-6 py-4 border-b border-gray-800">SCANS_24H</th>
-                                <th class="px-6 py-4 border-b border-gray-800">TOTAL_OPS</th>
-                                <th class="px-6 py-4 border-b border-gray-800">LAST_ACTIVE</th>
-                                <th class="px-6 py-4 border-b border-gray-800 text-center">COMMANDS</th>
-                            </tr>
-                        </thead>
-                        <tbody id="activity-log-body" class="divide-y divide-gray-800">
-                            <!-- JS will populate -->
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </main>
     </div>
-
-    <script type="module" src="dashboard.js"></script>
+    
+    <script src="config.js"></script>
+    <script>
+        // Check authentication
+        function checkAuth() {
+            var user = localStorage.getItem('user');
+            if (!user) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(user);
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+        
+        // Redirect to scanner
+        function redirectToScanner(type) {
+            window.location.href = 'scanner.html?type=' + type;
+        }
+        
+        // Load dashboard data
+        async function loadDashboard() {
+            var user = checkAuth();
+            if (!user) return;
+            
+            // Update UI with user info
+            document.getElementById('welcomeName').textContent = user.username;
+            document.getElementById('userName').textContent = user.username;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+            
+            try {
+                // Fetch user activity
+                var apiUrl = window.config.API_URL;
+                var response = await fetch(apiUrl + '/api/user-activity/' + user.id);
+                
+                if (response.ok) {
+                    var data = await response.json();
+                    
+                    document.getElementById('totalAnalyses').textContent = data.totalAnalyses || 0;
+                    document.getElementById('todayAnalyses').textContent = data.analysesToday || 0;
+                    
+                    // For demo, we'll calculate based on percentage
+                    var avgConfidence = data.avgConfidence || 0;
+                    var fakePercentage = avgConfidence > 50 ? Math.round(avgConfidence / 100 * data.totalAnalyses) : 0;
+                    var realCount = data.totalAnalyses - fakePercentage;
+                    
+                    document.getElementById('authenticCount').textContent = realCount;
+                    document.getElementById('fakeCount').textContent = fakePercentage;
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+            
+            // Hide loading
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
 </body>
-
 </html>
+

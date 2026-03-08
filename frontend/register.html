@@ -1,92 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Satyamev Jayate | Register</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        void: '#0f172a',
-                        cyan: '#3b82f6', // Remapped to Blue 500
-                        neonGreen: '#22c55e',
-                        alertRed: '#ef4444',
-                    },
-                    fontFamily: {
-                        mono: ['"Inter"', 'sans-serif'], // Remapped to Inter
-                    },
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="style.css">
+    <title>Register - Deepfake Detector</title>
+    <link rel="stylesheet" href="modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); min-height: 100vh; }
+        .auth-brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 32px; }
+        .auth-brand .logo-icon { width: 56px; height: 56px; }
+        .auth-brand .logo-text { font-size: 1.75rem; font-weight: 800; color: var(--primary); }
+        .password-input-wrapper { position: relative; }
+        .password-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.1rem; padding: 4px; }
+        .form-input.with-toggle { padding-right: 48px; }
+        .alert { padding: 14px 16px; border-radius: var(--radius-md); margin-bottom: 20px; font-weight: 500; display: none; }
+        .alert.show { display: block; }
+        .alert-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+        .alert-success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .password-strength { margin-top: 8px; }
+        .password-strength-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+        .password-strength-fill { height: 100%; width: 0; transition: all 0.3s; border-radius: 2px; }
+        .password-strength-fill.weak { width: 33%; background: var(--danger); }
+        .password-strength-fill.medium { width: 66%; background: var(--warning); }
+        .password-strength-fill.strong { width: 100%; background: var(--secondary); }
+        .password-strength-text { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+        .terms { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 24px; }
+        .terms input { margin-top: 2px; }
+        .terms label { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+        .terms a { color: var(--primary); }
+        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+    </style>
 </head>
-
-<body class="bg-void text-gray-300 flex items-center justify-center min-h-screen relative overflow-hidden">
-
-    <!-- Removed scanlines -->
-
-    <div
-        class="glass-panel p-8 w-full max-w-md relative z-10 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl">
-        <div class="text-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-2xl font-bold text-white mb-1">Create Account</h1>
-            <p class="text-sm text-gray-400">Join the Deepfake Detection Platform</p>
-        </div>
-
-        <form id="register-form" class="space-y-6">
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
-                <div class="relative">
-                    <input type="text" id="username" name="username" required
-                        class="w-full px-4 py-3 bg-slate-900 border border-slate-600 text-white rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all placeholder-gray-500"
-                        placeholder="Choose a username">
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-brand"><div class="logo-icon">🔍</div><span class="logo-text">Deepfake Detector</span></div>
+            <div class="auth-header">
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Start detecting deepfakes with AI power</p>
+            </div>
+            <div id="errorAlert" class="alert alert-error"></div>
+            <div id="successAlert" class="alert alert-success"></div>
+            <form id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="username">Username</label>
+                        <input type="text" id="username" name="username" class="form-input" placeholder="Choose a username" required minlength="3">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
+                    </div>
                 </div>
-            </div>
-
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                <div class="relative">
-                    <input type="email" id="email" name="email" required
-                        class="w-full px-4 py-3 bg-slate-900 border border-slate-600 text-white rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all placeholder-gray-500"
-                        placeholder="Enter your email">
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="password" name="password" class="form-input with-toggle" placeholder="Create a password" required minlength="6" oninput="checkPasswordStrength()">
+                        <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="password-strength-bar"><div class="password-strength-fill" id="strengthBar"></div></div>
+                        <div class="password-strength-text" id="strengthText"></div>
+                    </div>
                 </div>
-            </div>
-
-            <div>
-                <label for="password"
-                    class="block text-xs font-bold text-cyan mb-2 uppercase tracking-wide">Password</label>
-                <div class="relative">
-                    <span class="absolute left-3 top-3 text-gray-500">*</span>
-                    <input type="password" id="password" name="password" required
-                        class="w-full pl-8 pr-4 py-3 bg-black/50 border border-gray-700 text-white font-mono focus:border-cyan focus:outline-none focus:shadow-[0_0_10px_rgba(0,243,255,0.2)] transition-all placeholder-gray-700"
-                        placeholder="••••••••">
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-input with-toggle" placeholder="Confirm your password" required>
+                        <button type="button" class="password-toggle" onclick="toggleConfirmPassword()">👁️</button>
+                    </div>
                 </div>
-            </div>
-
-            <div id="message-display" class="text-xs text-center min-h-[20px] font-bold"></div>
-
-            <div>
-                <button type="submit" class="btn-cyber w-full group">
-                    <span class="mr-2 group-hover:animate-pulse">+</span> CREATE_RECORD
-                </button>
-            </div>
-        </form>
-
-        <div class="text-center mt-8 pt-4 border-t border-gray-800">
-            <p class="text-xs text-gray-500">
-                Existing Identity?
-                <a href="/login.html" class="text-cyan ml-2 hover:text-white transition font-bold">
-                    [ ACCESS_LOGIN ]
-                </a>
-            </p>
+                <div class="terms">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+            </form>
+            <div class="auth-footer">Already have an account? <a href="login.html">Sign in</a></div>
         </div>
     </div>
-
-    <script type="module" src="register.js"></script>
+    <div id="otpModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: var(--radius-lg); max-width: 400px; width: 90%;">
+            <h2 style="text-align: center; margin-bottom: 8px;">Verify Your Email</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 24px;">We've sent a verification code to your email</p>
+            <div id="otpError" class="alert alert-error" style="display: none;"></div>
+            <div class="form-group">
+                <label class="form-label" for="otp">Enter OTP Code</label>
+                <input type="text" id="otp" class="form-input" placeholder="Enter 6-digit code" maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 8px;">
+            </div>
+            <button type="button" id="verifyOtpBtn" class="btn btn-primary" style="width: 100%;">Verify</button>
+            <p style="text-align: center; margin-top: 16px; color: var(--text-secondary); font-size: 0.9rem;">Didn't receive code? <a href="#" onclick="resendOTP()">Resend</a></p>
+        </div>
+    </div>
+    <script src="config.js"></script>
+    <script>
+        var registeredEmail = '';
+        function togglePassword() {
+            var passwordInput = document.getElementById('password');
+            var toggleBtn = document.querySelector('#password + button');
+            if (passwordInput.type === 'password') { passwordInput.type = 'text'; toggleBtn.textContent = '🙈'; }
+            else { passwordInput.type = 'password'; toggleBtn.textContent = '👁️'; }
+        }
+        function toggleConfirmPassword() {
+            var passwordInput = document.getElementById('confirmPassword');
+            var toggleBtn = document.querySelector('#confirmPassword + button');
+            if (passwordInput.type === 'password') { passwordInput.type = 'text'; toggleBtn.textContent = '🙈'; }
+            else { passwordInput.type = 'password'; toggleBtn.textContent = '👁️'; }
+        }
+        function checkPasswordStrength() {
+            var password = document.getElementById('password').value;
+            var strengthBar = document.getElementById('strengthBar');
+            var strengthText = document.getElementById('strengthText');
+            strengthBar.className = 'password-strength-fill';
+            if (password.length === 0) { strengthText.textContent = ''; }
+            else if (password.length < 6) { strengthBar.classList.add('weak'); strengthText.textContent = 'Password too short'; strengthText.style.color = 'var(--danger)'; }
+            else if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) { strengthBar.classList.add('medium'); strengthText.textContent = 'Medium strength'; strengthText.style.color = 'var(--warning)'; }
+            else { strengthBar.classList.add('strong'); strengthText.textContent = 'Strong password'; strengthText.style.color = 'var(--secondary)'; }
+        }
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var username = document.getElementById('username').value;
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            var confirmPassword = document.getElementById('confirmPassword').value;
+            var errorAlert = document.getElementById('errorAlert');
+            var successAlert = document.getElementById('successAlert');
+            var submitBtn = this.querySelector('button[type="submit"]');
+            errorAlert.classList.remove('show');
+            successAlert.classList.remove('show');
+            if (password !== confirmPassword) { errorAlert.textContent = 'Passwords do not match!'; errorAlert.classList.add('show'); return; }
+            if (password.length < 6) { errorAlert.textContent = 'Password must be at least 6 characters!'; errorAlert.classList.add('show'); return; }
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating account...';
+            try {
+                var response = await fetch(window.config.API_URL + '/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, email: email, password: password })
+                });
+                var data = await response.json();
+                if (response.ok) {
+                    registeredEmail = email;
+                    successAlert.textContent = 'Account created! Please verify your email.';
+                    successAlert.classList.add('show');
+                    document.getElementById('otpModal').style.display = 'flex';
+                    if (data.otp) { document.getElementById('otp').value = data.otp; }
+                } else { errorAlert.textContent = data.message || 'Registration failed.'; errorAlert.classList.add('show'); }
+            } catch (error) {
+                errorAlert.textContent = 'Connection error. Please make sure the server is running.'; errorAlert.classList.add('show');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Account';
+            }
+        });
+        document.getElementById('verifyOtpBtn').addEventListener('click', async function() {
+            var otp = document.getElementById('otp').value;
+            var otpError = document.getElementById('otpError');
+            var verifyBtn = document.getElementById('verifyOtpBtn');
+            if (!otp || otp.length !== 6) { otpError.textContent = 'Please enter a valid 6-digit code'; otpError.style.display = 'block'; return; }
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Verifying...';
+            try {
+                var response = await fetch(window.config.API_URL + '/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: registeredEmail, otp: otp })
+                });
+                var data = await response.json();
+                if (response.ok) { alert('Email verified successfully! You can now login.'); window.location.href = 'login.html'; }
+                else { otpError.textContent = data.message || 'Invalid or expired OTP'; otpError.style.display = 'block'; }
+            } catch (error) { otpError.textContent = 'Connection error. Please try again.'; otpError.style.display = 'block'; }
+            finally { verifyBtn.disabled = false; verifyBtn.textContent = 'Verify'; }
+        });
+        function resendOTP() { alert('OTP resent to your email!'); }
+        var user = localStorage.getItem('user');
+        if (user) { window.location.href = 'dashboard.html'; }
+    </script>
 </body>
-
 </html>
+

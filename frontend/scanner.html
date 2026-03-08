@@ -1,181 +1,491 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Code Scanner - DEEPFAKE DETECTOR</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            black: '#0a0a0a',
-            cyan: '#00ffff',
-            darkgray: '#1a1a1a'
-          },
-          fontFamily: {
-            mono: ['"Courier New"', 'Courier', 'monospace'],
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner - Deepfake Detector</title>
+    <link rel="stylesheet" href="modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .scanner-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 0 12px; margin-bottom: 32px; }
+        .sidebar-logo .logo-icon { width: 40px; height: 40px; }
+        .sidebar-logo .logo-text { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+        .sidebar-nav { list-style: none; }
+        .sidebar-nav-item { margin-bottom: 4px; }
+        .sidebar-nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); border-radius: var(--radius-md); font-weight: 500; transition: all 0.2s; text-decoration: none; }
+        .sidebar-nav-link:hover { background: var(--bg-main); color: var(--text-main); }
+        .sidebar-nav-link.active { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .sidebar-nav-icon { font-size: 1.25rem; }
+        .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); }
+        .user-info { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: var(--radius-md); margin-bottom: 12px; }
+        .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .user-name { font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+        .main-content { flex: 1; margin-left: 260px; padding: 32px; background: var(--bg-main); min-height: 100vh; }
+        .page-header { margin-bottom: 32px; }
+        .page-title { font-size: 1.75rem; margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-secondary); }
+        .scanner-container { max-width: 800px; margin: 0 auto; }
+        .upload-card { background: var(--bg-card); border-radius: var(--radius-lg); padding: 48px; box-shadow: var(--shadow-md); border: 1px solid var(--border); text-align: center; }
+        .upload-icon { font-size: 4rem; margin-bottom: 24px; }
+        .upload-title { font-size: 1.5rem; margin-bottom: 12px; }
+        .upload-subtitle { color: var(--text-secondary); margin-bottom: 32px; }
+        
+        /* Media type selection buttons */
+        .media-types { display: flex; justify-content: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+        .media-type-btn { 
+            display: flex; flex-direction: column; align-items: center; gap: 8px; 
+            padding: 20px 32px; background: var(--bg-main); border: 2px solid var(--border); 
+            border-radius: var(--radius-lg); cursor: pointer; transition: all 0.2s; min-width: 120px;
         }
-      }
-    }
-  </script>
-  <!-- HTML5-QRCode Library -->
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="shared.css">
-  <style>
-    body {
-      background-color: #050505;
-      color: #e0e0e0;
-      font-family: 'Courier New', Courier, monospace;
-    }
-
-    .scanner-container {
-      border: 2px solid #333;
-      background: #000;
-      position: relative;
-      overflow: hidden;
-      min-height: 300px;
-    }
-
-    /* Grid overlay for "tech" feel */
-    .grid-bg {
-      background-image: linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
-      background-size: 20px 20px;
-    }
-
-    .tab-btn.active {
-      background-color: rgba(0, 255, 255, 0.1);
-      border-color: #00ffff;
-      color: #00ffff;
-    }
-  </style>
+        .media-type-btn:hover { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
+        .media-type-btn.selected { border-color: var(--primary); background: rgba(79, 70, 229, 0.1); }
+        .media-type-icon { font-size: 2.5rem; }
+        .media-type-label { font-weight: 600; color: var(--text-main); }
+        
+        /* File browser button */
+        .browse-btn { 
+            display: inline-flex; align-items: center; gap: 8px; 
+            padding: 16px 32px; background: var(--primary); color: white; 
+            border: none; border-radius: var(--radius-md); cursor: pointer; 
+            font-size: 1rem; font-weight: 600; transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+        .browse-btn:hover { background: var(--primary-dark); }
+        
+        .drop-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 32px; transition: all 0.3s; margin-bottom: 16px; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: rgba(79, 70, 229, 0.04); }
+        .drop-zone-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.5; }
+        .drop-zone-text { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+        .drop-zone-hint { color: var(--text-muted); font-size: 0.9rem; }
+        
+        .selected-file { display: none; align-items: center; gap: 16px; padding: 20px; background: rgba(79, 70, 229, 0.1); border-radius: var(--radius-md); margin-top: 24px; }
+        .selected-file.show { display: flex; }
+        .selected-file-icon { font-size: 2rem; }
+        .selected-file-info { flex: 1; text-align: left; }
+        .selected-file-name { font-weight: 600; color: var(--text-main); }
+        .selected-file-size { font-size: 0.875rem; color: var(--text-muted); }
+        .selected-file-remove { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+        .selected-file-remove:hover { color: var(--danger); }
+        
+        .analyze-btn { margin-top: 24px; display: none; }
+        .analyze-btn.show { display: inline-flex; }
+        
+        .results-section { margin-top: 32px; display: none; }
+        .results-section.show { display: block; }
+        .result-card { background: var(--bg-card); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+        .result-header { text-align: center; padding: 32px; border-radius: var(--radius-lg); margin-bottom: 24px; }
+        .result-header.real { background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border: 2px solid var(--secondary); }
+        .result-header.fake { background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); border: 2px solid var(--danger); }
+        .result-icon { font-size: 4rem; margin-bottom: 16px; }
+        .result-label { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+        .result-header.real .result-label { color: var(--secondary); }
+        .result-header.fake .result-label { color: var(--danger); }
+        .confidence-score { font-size: 3rem; font-weight: 800; margin: 16px 0; }
+        .confidence-label { color: var(--text-secondary); }
+        
+        .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+        .analysis-card { background: var(--bg-main); border-radius: var(--radius-md); padding: 20px; }
+        .analysis-card-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        .analysis-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .analysis-row:last-child { border-bottom: none; }
+        .analysis-label { font-weight: 500; }
+        .analysis-value { color: var(--text-secondary); }
+        
+        .loading-overlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .loading-overlay.show { display: flex; }
+        .loading-content { text-align: center; }
+        .loading-spinner { width: 64px; height: 64px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        .loading-text { font-size: 1.1rem; font-weight: 600; }
+        .loading-subtext { color: var(--text-muted); margin-top: 8px; }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 768px) { 
+            .sidebar { display: none; } 
+            .main-content { margin-left: 0; padding: 16px; } 
+            .upload-card { padding: 24px; }
+            .media-types { flex-direction: column; }
+            .media-type-btn { width: 100%; }
+        }
+    </style>
 </head>
-
-<body class="min-h-screen flex flex-col grid-bg">
-
-  <div data-include="header"></div>
-
-  <!-- Header -->
-  <header class="border-b border-gray-800 bg-black/80 backdrop-blur-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <a href="vastav.html" class="text-cyan hover:text-white transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-        </a>
-        <h1 class="text-xl font-bold tracking-wider text-white">CODE_SCANNER_MODULE</h1>
-      </div>
-      <div class="text-xs text-cyan font-mono animate-pulse">SYSTEM_ACTIVE</div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center">
-
-    <!-- Tabs -->
-    <div class="flex space-x-4 mb-4">
-      <button id="tab-camera"
-        class="tab-btn active border border-gray-700 px-4 py-2 rounded text-xs font-bold hover:bg-gray-800 transition-all flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        LIVE_CAMERA
-      </button>
-      <button id="tab-image"
-        class="tab-btn border border-gray-700 px-4 py-2 rounded text-xs font-bold hover:bg-gray-800 transition-all flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        IMAGE_FILE
-      </button>
-    </div>
-
-    <!-- Scanner Box -->
-    <div
-      class="w-full max-w-md bg-darkgray border border-gray-700 rounded-lg p-1 shadow-2xl relative min-h-[350px] flex flex-col">
-      <!-- Decorative Corners -->
-      <div class="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-cyan -mt-1 -ml-1 z-20"></div>
-      <div class="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-cyan -mt-1 -mr-1 z-20"></div>
-      <div class="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-cyan -mb-1 -ml-1 z-20"></div>
-      <div class="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-cyan -mb-1 -mr-1 z-20"></div>
-
-      <!-- View: Camera -->
-      <div id="camera-view" class="flex-grow flex flex-col">
-        <div id="reader" class="scanner-container w-full flex-grow bg-black rounded relative"></div>
-        <div class="p-2 text-center">
-          <div id="scan-status" class="text-xs text-cyan animate-pulse">INITIALIZING_CAMERA...</div>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Analyzing your file...</div>
+            <div class="loading-subtext">This may take a few seconds</div>
         </div>
-      </div>
-
-      <!-- View: File Upload -->
-      <div id="file-view" class="flex-grow hidden flex-col items-center justify-center p-6">
-        <div
-          class="w-full border-2 border-dashed border-gray-600 rounded-lg p-8 flex flex-col items-center justify-center hover:border-cyan hover:bg-cyan/5 transition-all cursor-pointer relative"
-          id="drop-zone">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <p class="text-sm text-gray-300 font-bold mb-1">Upload QR / Barcode Image</p>
-          <p class="text-xs text-gray-500">Supports JPG, PNG, WEBP</p>
-          <input type="file" id="qr-input-file" accept="image/*"
-            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-        </div>
-        <div class="text-xs text-red-500 mt-4 h-4" id="file-error"></div>
-      </div>
-
     </div>
 
-    <!-- Result Area -->
-    <div id="result-panel" class="w-full max-w-md mt-6 hidden">
-      <div class="bg-black border border-green-500/50 rounded-lg p-4 shadow-[0_0_15px_rgba(34,197,94,0.2)]">
-        <h3 class="text-green-500 font-bold mb-2 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          SCAN_SUCCESSFUL
-        </h3>
-        <div class="bg-gray-900 p-3 rounded border border-gray-800 font-mono text-sm break-all text-gray-300"
-          id="scan-result-container">
-          <span id="scan-result-text"></span>
-        </div>
-        <div class="mt-4 flex justify-end">
-          <button id="copy-btn"
-            class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded transition-colors mr-2">
-            COPY
-          </button>
-          <button id="reset-scanner-btn"
-            class="text-xs bg-cyan/10 hover:bg-cyan/20 text-cyan border border-cyan/50 px-3 py-1 rounded transition-colors">
-            SCAN_AGAIN
-          </button>
-        </div>
-      </div>
+    <div class="scanner-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🔍</div>
+                <span class="logo-text">Deepfake<br>Detector</span>
+            </div>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item"><a href="dashboard.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📊</span>Dashboard</a></li>
+                <li class="sidebar-nav-item"><a href="scanner.html" class="sidebar-nav-link active"><span class="sidebar-nav-icon">🔍</span>Scanner</a></li>
+                <li class="sidebar-nav-item"><a href="live-detection.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📹</span>Live Detection</a></li>
+                <li class="sidebar-nav-item"><a href="result.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📋</span>History</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-name" id="userName">User</div>
+                </div>
+                <button class="logout-btn" onclick="logout()"><span>🚪</span>Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">File Scanner</h1>
+                <p class="page-subtitle">Upload an image, video, or audio file for deepfake analysis</p>
+            </div>
+            
+            <div class="scanner-container">
+                <!-- Upload Card -->
+                <div class="upload-card" id="uploadCard">
+                    <div class="upload-icon">🎯</div>
+                    <h2 class="upload-title">Analyze Your File</h2>
+                    <p class="upload-subtitle">Select a file type and upload your media</p>
+                    
+                    <!-- Media Type Selection -->
+                    <div class="media-types">
+                        <div class="media-type-btn" onclick="selectMediaType('image')" id="imageBtn">
+                            <span class="media-type-icon">🖼️</span>
+                            <span class="media-type-label">Image</span>
+                        </div>
+                        <div class="media-type-btn" onclick="selectMediaType('video')" id="videoBtn">
+                            <span class="media-type-icon">🎬</span>
+                            <span class="media-type-label">Video</span>
+                        </div>
+                        <div class="media-type-btn" onclick="selectMediaType('audio')" id="audioBtn">
+                            <span class="media-type-icon">🔊</span>
+                            <span class="media-type-label">Audio</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Message -->
+                    <p id="mediaTypeStatus" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+                        Click a type above to filter, then click "Choose File"
+                    </p>
+                    
+                    <!-- Hidden File Input -->
+                    <input type="file" id="fileInput" style="display: none;" accept="image/*,video/*,audio/*">
+                    
+                    <!-- Browse Button -->
+                    <button class="browse-btn" onclick="openFileBrowser()">
+                        📁 Choose File
+                    </button>
+                    
+                    <!-- Drop Zone -->
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-icon">☁️</div>
+                        <div class="drop-zone-text">Or drag and drop your file here</div>
+                        <div class="drop-zone-hint">Supports: JPG, PNG, GIF, MP4, AVI, WAV, MP3</div>
+                    </div>
+                    
+                    <!-- Selected File Display -->
+                    <div class="selected-file" id="selectedFile">
+                        <div class="selected-file-icon">📄</div>
+                        <div class="selected-file-info">
+                            <div class="selected-file-name" id="fileName">filename.jpg</div>
+                            <div class="selected-file-size" id="fileSize">2.5 MB</div>
+                        </div>
+                        <button class="selected-file-remove" onclick="removeFile()">×</button>
+                    </div>
+                    
+                    <!-- Analyze Button -->
+                    <button class="btn btn-primary btn-lg analyze-btn" id="analyzeBtn" onclick="analyzeFile()">
+                        🔍 Analyze File
+                    </button>
+                </div>
+
+                <!-- Results Section -->
+                <div class="results-section" id="resultsSection">
+                    <div class="result-card">
+                        <div class="result-header" id="resultHeader">
+                            <div class="result-icon" id="resultIcon">✅</div>
+                            <div class="result-label" id="resultLabel">Authentic</div>
+                            <div class="confidence-score" id="confidenceScore">95%</div>
+                            <div class="confidence-label">Confidence Score</div>
+                        </div>
+                        <div class="analysis-grid">
+                            <div class="analysis-card">
+                                <h3 class="analysis-card-title">Chief Judgment</h3>
+                                <div class="analysis-row">
+                                    <span class="analysis-label">Assessment</span>
+                                    <span class="analysis-value" id="chiefJudgment">The media appears to be authentic</span>
+                                </div>
+                            </div>
+                            <div class="analysis-card">
+                                <h3 class="analysis-card-title">Feature Scores</h3>
+                                <div class="analysis-row">
+                                    <span class="analysis-label">Visual Artifacts</span>
+                                    <span class="analysis-value" id="visualScore">15%</span>
+                                </div>
+                                <div class="analysis-row">
+                                    <span class="analysis-label">Audio Consistency</span>
+                                    <span class="analysis-value" id="audioScore">N/A</span>
+                                </div>
+                                <div class="analysis-row">
+                                    <span class="analysis-label">Metadata Integrity</span>
+                                    <span class="analysis-value" id="metadataScore">85%</span>
+                                </div>
+                            </div>
+                            <div class="analysis-card">
+                                <h3 class="analysis-card-title">Metadata Analysis</h3>
+                                <div class="analysis-row">
+                                    <span class="analysis-label">File Type</span>
+                                    <span class="analysis-value" id="fileType">image/jpeg</span>
+                                </div>
+                                <div class="analysis-row">
+                                    <span class="analysis-label">Camera</span>
+                                    <span class="analysis-value" id="camera">Unknown</span>
+                                </div>
+                                <div class="analysis-row">
+                                    <span class="analysis-label">Date</span>
+                                    <span class="analysis-value" id="captureDate">Unknown</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 24px;">
+                            <button class="btn btn-secondary" onclick="downloadPDF()">📥 Download PDF Report</button>
+                            <button class="btn btn-primary" onclick="newAnalysis()">➕ New Analysis</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-  </main>
+    <script src="config.js"></script>
+    <script>
+        var selectedFile = null;
+        var selectedMediaType = null;
 
-  <footer class="border-t border-gray-800 bg-black py-4 mt-auto">
-    <div class="container mx-auto px-4 text-center text-xs text-gray-600 font-mono">
-      SECURE_ID_SYSTEMS_V2.0 // ENCRYPTED_CONNECTION
-    </div>
-  </footer>
+        // Check authentication
+        function checkAuth() {
+            var user = localStorage.getItem('user');
+            if (!user) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(user);
+        }
 
-  <script src="scanner.js"></script>
-  <div data-include="footer"></div>
-  <script src="inject-components.js"></script>
+        // Logout
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        // Initialize user info
+        var user = checkAuth();
+        if (user) {
+            document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+            document.getElementById('userName').textContent = user.username;
+        }
+
+        // Select media type (image/video/audio) - just highlights the button
+        function selectMediaType(type) {
+            selectedMediaType = type;
+            
+            // Update button styles - just highlight, don't open file browser
+            document.getElementById('imageBtn').classList.remove('selected');
+            document.getElementById('videoBtn').classList.remove('selected');
+            document.getElementById('audioBtn').classList.remove('selected');
+            document.getElementById(type + 'Btn').classList.add('selected');
+            
+            // Update file input accept attribute for when user clicks Choose File
+            var fileInput = document.getElementById('fileInput');
+            if (type === 'image') {
+                fileInput.accept = 'image/*';
+            } else if (type === 'video') {
+                fileInput.accept = 'video/*';
+            } else if (type === 'audio') {
+                fileInput.accept = 'audio/*';
+            }
+            
+            // Update status message
+            var statusEl = document.getElementById('mediaTypeStatus');
+            statusEl.textContent = '✓ ' + type.toUpperCase() + ' selected! Now click "Choose File"';
+            statusEl.style.color = 'var(--primary)';
+            statusEl.style.fontWeight = '600';
+        }
+
+        // Open file browser - respects the selected media type
+        function openFileBrowser() {
+            var fileInput = document.getElementById('fileInput');
+            
+            // If no media type selected, show all types
+            if (!selectedMediaType) {
+                fileInput.accept = 'image/*,video/*,audio/*';
+            }
+            
+            fileInput.click();
+        }
+
+        // File input change handler
+        var fileInput = document.getElementById('fileInput');
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        // Drag and drop handlers
+        var dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', function() {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+        dropZone.addEventListener('click', function() {
+            openFileBrowser();
+        });
+
+        // Handle file selection
+        function handleFileSelect(file) {
+            selectedFile = file;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('selectedFile').classList.add('show');
+            document.getElementById('analyzeBtn').classList.add('show');
+        }
+
+        // Remove selected file
+        function removeFile() {
+            selectedFile = null;
+            fileInput.value = '';
+            document.getElementById('selectedFile').classList.remove('show');
+            document.getElementById('analyzeBtn').classList.remove('show');
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            var k = 1024;
+            var sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            var i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Analyze file
+        async function analyzeFile() {
+            if (!selectedFile) {
+                alert('Please select a file first!');
+                return;
+            }
+            
+            var user = checkAuth();
+            if (!user) return;
+
+            document.getElementById('loadingOverlay').classList.add('show');
+
+            var formData = new FormData();
+            formData.append('media', selectedFile);
+            formData.append('userId', user.id);
+
+            try {
+                var response = await fetch(window.config.API_URL + '/api/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                var data = await response.json();
+
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    alert('Analysis failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Analysis error:', error);
+                alert('Connection error. Please make sure the server is running.');
+            } finally {
+                document.getElementById('loadingOverlay').classList.remove('show');
+            }
+        }
+
+        // Display results
+        function displayResults(data) {
+            var isReal = !data.is_deepfake;
+            
+            var resultHeader = document.getElementById('resultHeader');
+            resultHeader.className = 'result-header ' + (isReal ? 'real' : 'fake');
+            
+            document.getElementById('resultIcon').textContent = isReal ? '✅' : '⚠️';
+            document.getElementById('resultLabel').textContent = isReal ? 'Authentic' : 'Deepfake Detected';
+            document.getElementById('confidenceScore').textContent = data.confidence + '%';
+            
+            // Feature scores
+            if (data.feature_scores) {
+                document.getElementById('visualScore').textContent = data.feature_scores['Visual Artifacts'] || 'N/A';
+                document.getElementById('audioScore').textContent = data.feature_scores['Audio Consistency'] || 'N/A';
+                document.getElementById('metadataScore').textContent = data.feature_scores['Metadata Integrity'] || 'N/A';
+            }
+            
+            // Metadata
+            if (data.metadata_analysis) {
+                var metadata = data.metadata_analysis;
+                document.getElementById('fileType').textContent = selectedFile.type || 'Unknown';
+                
+                var camera = metadata.find(function(m) { return m.title === 'Camera Model'; });
+                document.getElementById('camera').textContent = camera ? camera.description : 'Unknown';
+                
+                var date = metadata.find(function(m) { return m.title === 'Capture Date'; });
+                document.getElementById('captureDate').textContent = date ? date.description : 'Unknown';
+            }
+            
+            // Chief judgment
+            if (data.chief_judgment) {
+                document.getElementById('chiefJudgment').textContent = data.chief_judgment.description;
+            }
+
+            // Show results
+            document.getElementById('resultsSection').classList.add('show');
+            document.getElementById('uploadCard').style.display = 'none';
+        }
+
+        // Download PDF
+        function downloadPDF() {
+            alert('PDF download feature coming soon!');
+        }
+
+        // New analysis
+        function newAnalysis() {
+            removeFile();
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('uploadCard').style.display = 'block';
+            
+            // Reset media type selection
+            selectedMediaType = null;
+            document.getElementById('imageBtn').classList.remove('selected');
+            document.getElementById('videoBtn').classList.remove('selected');
+            document.getElementById('audioBtn').classList.remove('selected');
+        }
+    </script>
 </body>
-
 </html>
+
