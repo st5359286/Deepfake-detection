@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Deepfake Detector",
+  "name": "SynthShield",
   "version": "1.0",
-  "description": "Detect deepfakes in uploaded media files.",
+  "description": "AI-powered media defense and verification for suspicious content.",
   "permissions": [
     "activeTab",
     "storage",

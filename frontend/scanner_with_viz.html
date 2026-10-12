@@ -1,141 +1,1209 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanner - Deepfake Detector</title>
+    <title>Scanner - SynthShield</title>
     <link rel="stylesheet" href="modern.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
-        .loading-overlay.show { display: flex; }
-        .spinner { width: 50px; height: 50px; border: 4px solid var(--primary-light); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .app-layout { display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
-        .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 0 12px; margin-bottom: 32px; }
-        .sidebar-logo .logo-icon { width: 40px; height: 40px; }
-        .sidebar-logo .logo-text { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
-        .sidebar-nav { list-style: none; }
-        .sidebar-nav-item { margin-bottom: 4px; }
-        .sidebar-nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); border-radius: var(--radius-md); font-weight: 500; transition: all 0.2s; text-decoration: none; }
-        .sidebar-nav-link:hover { background: var(--bg-main); color: var(--text-main); }
-        .sidebar-nav-link.active { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
-        .sidebar-nav-icon { font-size: 1.25rem; }
-        .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); }
-        .user-info { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: var(--radius-md); margin-bottom: 12px; }
-        .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
-        .user-name { font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
-        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer; font-weight: 500; transition: all 0.2s; }
-        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
-        .main-content { flex: 1; margin-left: 260px; padding: 32px; background: var(--bg-main); min-height: 100vh; }
-        .page-header { margin-bottom: 32px; }
-        .page-title { font-size: 1.75rem; margin-bottom: 8px; }
-        .page-subtitle { color: var(--text-secondary); }
-        .scanner-container { max-width: 1200px; margin: 0 auto; }
-        .upload-card { background: var(--bg-card); border-radius: var(--radius-lg); padding: 48px; box-shadow: var(--shadow-md); border: 1px solid var(--border); text-align: center; }
-        
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--primary-light);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px;
+            margin-bottom: 32px;
+        }
+
+        .sidebar-logo .logo-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav-item {
+            margin-bottom: 4px;
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .sidebar-nav-link:hover {
+            background: var(--bg-main);
+            color: var(--text-main);
+        }
+
+        .sidebar-nav-link.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+        }
+
+        .sidebar-nav-icon {
+            font-size: 1.25rem;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-main);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 32px;
+            background: var(--bg-main);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+        }
+
+        .scanner-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .upload-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
         /* Media type selection buttons */
-        .media-types { display: flex; justify-content: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
-        .media-type-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 20px 32px; background: var(--bg-main); border: 2px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; transition: all 0.2s; min-width: 120px; }
-        .media-type-btn:hover { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
-        .media-type-btn.selected { border-color: var(--primary); background: rgba(79, 70, 229, 0.1); }
-        .media-type-icon { font-size: 2.5rem; }
-        .media-type-label { font-weight: 600; color: var(--text-main); }
-        
-        .browse-btn { display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; background: var(--primary); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.2s; margin-bottom: 16px; }
-        .browse-btn:hover { background: var(--primary-dark); }
-        
-        .drop-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 32px; transition: all 0.3s; margin-bottom: 16px; }
-        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: rgba(79, 70, 229, 0.04); }
-        .drop-zone-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.5; }
-        .drop-zone-text { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
-        .drop-zone-hint { color: var(--text-muted); font-size: 0.9rem; }
-        
-        .selected-file { display: none; align-items: center; gap: 16px; padding: 20px; background: rgba(79, 70, 229, 0.1); border-radius: var(--radius-md); margin-top: 24px; }
-        .selected-file.show { display: flex; }
-        .selected-file-icon { font-size: 2rem; }
-        .selected-file-info { flex: 1; text-align: left; }
-        .selected-file-name { font-weight: 600; color: var(--text-main); }
-        .selected-file-size { font-size: 0.875rem; color: var(--text-muted); }
-        .selected-file-remove { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
-        .selected-file-remove:hover { color: var(--danger); }
-        
-        .analyze-btn { margin-top: 24px; display: none; }
-        .analyze-btn.show { display: inline-flex; }
-        
-        .results-section { margin-top: 32px; display: none; }
-        .results-section.show { display: block; }
-        .result-card { background: var(--bg-card); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
-        .result-header { text-align: center; padding: 32px; border-radius: var(--radius-lg); margin-bottom: 24px; }
-        .result-header.real { background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border: 2px solid var(--secondary); }
-        .result-header.fake { background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); border: 2px solid var(--danger); }
-        .result-icon { font-size: 4rem; margin-bottom: 16px; }
-        .result-label { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
-        .result-header.real .result-label { color: var(--secondary); }
-        .result-header.fake .result-label { color: var(--danger); }
-        .confidence-score { font-size: 3rem; font-weight: 800; margin: 16px 0; }
-        .confidence-label { color: var(--text-secondary); }
-        
-        .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
-        .analysis-card { background: var(--bg-main); border-radius: var(--radius-md); padding: 20px; }
-        .analysis-card-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-        .analysis-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-        .analysis-row:last-child { border-bottom: none; }
-        .analysis-label { font-weight: 500; }
-        .analysis-value { color: var(--text-secondary); }
-        
+        .media-types {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .media-type-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 20px 32px;
+            background: var(--bg-main);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+
+        .media-type-btn:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .media-type-btn.selected {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .media-type-icon {
+            font-size: 2.5rem;
+        }
+
+        .media-type-label {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .browse-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .browse-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.04);
+        }
+
+        .drop-zone-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .drop-zone-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .drop-zone-hint {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .selected-file {
+            display: none;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(79, 70, 229, 0.1);
+            border-radius: var(--radius-md);
+            margin-top: 24px;
+        }
+
+        .selected-file.show {
+            display: flex;
+        }
+
+        .selected-file-icon {
+            font-size: 2rem;
+        }
+
+        .selected-file-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .selected-file-name {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .selected-file-size {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .selected-file-remove {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .selected-file-remove:hover {
+            color: var(--danger);
+        }
+
+        .file-preview {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .file-preview.show {
+            display: block;
+        }
+
+        .preview-media {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: #0f172a;
+            max-height: 280px;
+            min-height: 160px;
+        }
+
+        .preview-media img,
+        .preview-media video,
+        .preview-media audio {
+            width: 100%;
+            height: auto;
+            max-height: 280px;
+            display: block;
+        }
+
+        .preview-message {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 12px;
+        }
+
+        .analyze-btn {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .analyze-btn.show {
+            display: inline-flex;
+        }
+
+        .results-section {
+            margin-top: 32px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .result-card h3 {
+            word-break: break-word;
+        }
+
+        .result-card h3 span {
+            display: inline-block;
+            max-width: 65%;
+        }
+
+        .result-header {
+            text-align: center;
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+        }
+
+        .result-header.real {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+            border: 2px solid var(--secondary);
+        }
+
+        .result-header.fake {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+            border: 2px solid var(--danger);
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .result-label {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .source-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .source-badge.trained {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .source-badge.mock {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .result-header.real .result-label {
+            color: var(--secondary);
+        }
+
+        .result-header.fake .result-label {
+            color: var(--danger);
+        }
+
+        .confidence-score {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 16px 0;
+        }
+
+        .confidence-label {
+            color: var(--text-secondary);
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .analysis-card {
+            background: var(--bg-main);
+            border-radius: var(--radius-md);
+            padding: 20px;
+        }
+
+        .analysis-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .analysis-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .analysis-row:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-label {
+            font-weight: 500;
+        }
+
+        .analysis-value {
+            color: var(--text-secondary);
+        }
+
         /* Visualization Styles */
-        .viz-section { margin-top: 24px; }
-        .viz-card { background: var(--bg-main); border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px; }
-        .viz-card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
-        
+        .viz-section {
+            margin-top: 24px;
+        }
+
+        .viz-card {
+            background: var(--bg-main);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .viz-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
         /* Media Preview */
-        .media-preview-container { display: flex; gap: 24px; flex-wrap: wrap; }
-        .media-preview-box { flex: 1; min-width: 300px; }
-        .media-preview-item { border-radius: var(--radius-md); overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; min-height: 250px; }
-        .media-preview-item img, .media-preview-item video { max-width: 100%; max-height: 300px; }
-        .media-preview-placeholder { color: #666; font-size: 3rem; }
-        
+        .media-preview-container {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .media-preview-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .media-preview-item {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+        }
+
+        .media-preview-item img,
+        .media-preview-item video {
+            max-width: 100%;
+            max-height: 300px;
+        }
+
+        .media-preview-placeholder {
+            color: #666;
+            font-size: 3rem;
+        }
+
         /* Heatmap Canvas */
-        .heatmap-container { position: relative; display: inline-block; }
-        #heatmapCanvas { border-radius: var(--radius-md); max-width: 100%; }
-        .heatmap-legend { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8rem; color: var(--text-secondary); }
-        
+        .heatmap-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        #heatmapCanvas {
+            border-radius: var(--radius-md);
+            max-width: 100%;
+        }
+
+        .heatmap-legend {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
         /* Consistency Graph */
-        .consistency-chart { height: 150px; display: flex; align-items: flex-end; gap: 4px; padding: 10px 0; }
-        .consistency-bar { flex: 1; border-radius: 4px 4px 0 0; transition: height 0.3s; }
-        .consistency-bar.authentic { background: linear-gradient(to top, #10B981, #34D399); }
-        .consistency-bar.manipulated { background: linear-gradient(to top, #EF4444, #F87171); }
-        
+        .consistency-chart {
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            padding: 10px 0;
+        }
+
+        .consistency-bar {
+            flex: 1;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s;
+        }
+
+        .consistency-bar.authentic {
+            background: linear-gradient(to top, #10B981, #34D399);
+        }
+
+        .consistency-bar.manipulated {
+            background: linear-gradient(to top, #EF4444, #F87171);
+        }
+
         /* Confidence Breakdown Bar Chart */
-        .bar-chart { display: flex; flex-direction: column; gap: 12px; }
-        .bar-row { display: flex; align-items: center; gap: 12px; }
-        .bar-label { width: 100px; font-size: 0.85rem; font-weight: 500; }
-        .bar-container { flex: 1; height: 24px; background: var(--bg-card); border-radius: 12px; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 12px; transition: width 0.5s; }
-        .bar-value { width: 50px; text-align: right; font-size: 0.85rem; font-weight: 600; }
-        
-        .loading-overlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .loading-overlay.show { display: flex; }
-        .loading-content { text-align: center; }
-        .loading-spinner { width: 64px; height: 64px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        .loading-text { font-size: 1.1rem; font-weight: 600; }
-        .loading-subtext { color: var(--text-muted); margin-top: 8px; }
-        
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        @media (max-width: 768px) { 
-            .sidebar { display: none; } 
-            .main-content { margin-left: 0; padding: 16px; } 
-            .upload-card { padding: 24px; }
-            .media-types { flex-direction: column; }
-            .media-type-btn { width: 100%; }
-            .media-preview-container { flex-direction: column; }
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bar-label {
+            width: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 24px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s;
+        }
+
+        .bar-value {
+            width: 50px;
+            text-align: right;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 64px;
+            height: 64px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .loading-subtext {
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Premium Result Layout Styles */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .preview-card {
+            background: #0d0f14;
+            border: 1px solid #1f2937;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .glass-aside {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .doc-section {
+            margin-top: 24px;
+            padding: 20px;
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 18px;
+        }
+
+        .doc-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #f8fafc;
+        }
+
+        .doc-section p {
+            color: #cbd5e1;
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+
+        .doc-subtitle {
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        .doc-text {
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+        .doc-list {
+            list-style: disc inside;
+            color: #9ca3af;
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .doc-item {
+            margin-bottom: 10px;
+        }
+
+        .doc-list li {
+            margin-bottom: 10px;
+        }
+
+        .model-info {
+            margin-top: 14px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .media-stage {
+            position: relative;
+            background: #000;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+            max-height: 480px;
+            border: 1px solid #374151;
+        }
+
+        .media-stage img,
+        .media-stage video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            max-height: 480px;
+        }
+
+        .media-overlay-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            opacity: 0.75;
+            transition: opacity 0.2s;
+        }
+
+        .heatmap-snapshots {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 10px;
+            margin-top: 18px;
+            padding-bottom: 4px;
+            max-width: 100%;
+        }
+
+        .heatmap-snapshot {
+            width: 88px;
+            height: 62px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            flex: 0 0 auto;
+            background: #111827;
+        }
+
+        .heatmap-snapshot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .heatmap-snapshot-label {
+            font-size: 0.72rem;
+            color: #9ca3af;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        .results-section {
+            margin-top: 32px;
+            display: none;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+            overflow: hidden;
+            margin: 0 auto 32px;
+        }
+
+        .split-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+            gap: 24px;
+            margin-top: 20px;
+            width: 100%;
+            min-width: 0;
+        }
+
+        @media (max-width: 1100px) {
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-card,
+        .glass-aside {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .media-stage {
+            position: relative;
+            background: #000;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+            max-height: 480px;
+            width: 100%;
+            border: 1px solid #374151;
+        }
+
+        .media-stage img,
+        .media-stage video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            max-height: 480px;
+            display: block;
+        }
+
+        .media-overlay-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            opacity: 0.75;
+            transition: opacity 0.2s;
+        }
+
+        .controls-stage {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .scrub-timeline {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #1f2937;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .scrub-timeline::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            transition: transform 0.1s;
+        }
+
+        .scrub-timeline::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+        }
+
+        .scrub-tooltip {
+            position: absolute;
+            background: var(--primary-dark);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            bottom: 25px;
+            transform: translateX(-50%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .scrub-tooltip.show {
+            opacity: 1;
+        }
+
+        /* Glassmorphism Right Aside Panel */
+        .glass-aside {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            color: #f3f4f6;
+        }
+
+        .gauge-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 20px;
+        }
+
+        .circular-gauge {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .circular-gauge svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .circular-gauge circle {
+            fill: none;
+            stroke-width: 8;
+        }
+
+        .circular-gauge .circle-bg {
+            stroke: #1f2937;
+        }
+
+        .circular-gauge .circle-fill {
+            stroke: var(--primary);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+
+        .circular-gauge .circle-fill.fake {
+            stroke: var(--danger);
+        }
+
+        .circular-gauge .circle-fill.real {
+            stroke: var(--secondary);
+        }
+
+        .circular-gauge .gauge-val {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .verdict-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .verdict-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .badge-risk {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            width: fit-content;
+        }
+
+        .badge-risk.critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-risk.high {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-risk.medium {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-risk.low {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-inference {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            color: #e2e8f0;
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .badge-inference.live {
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.35);
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .badge-inference.mock {
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.35);
+            background: rgba(245, 158, 11, 0.15);
+        }
+
+        .score-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .score-label {
+            font-weight: 500;
+            color: #9ca3af;
+        }
+
+        .score-val {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .recom-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        .recom-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #e5e7eb;
+        }
+
+        .recom-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .recom-item {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .recom-item::before {
+            content: "•";
+            color: var(--primary-light);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .upload-card {
+                padding: 24px;
+            }
+
+            .media-types {
+                flex-direction: column;
+            }
+
+            .media-type-btn {
+                width: 100%;
+            }
+
+            .media-preview-container {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
+
 <body>
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-content">
@@ -148,14 +1216,18 @@
     <div class="scanner-layout">
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <div class="logo-icon">🔍</div>
-                <span class="logo-text">Deepfake<br>Detector</span>
+                <div class="logo-icon">🛡️</div>
+                <span class="logo-text">SynthShield</span>
             </div>
             <ul class="sidebar-nav">
-                <li class="sidebar-nav-item"><a href="dashboard.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📊</span>Dashboard</a></li>
-                <li class="sidebar-nav-item"><a href="scanner_with_viz.html" class="sidebar-nav-link active"><span class="sidebar-nav-icon">🔍</span>Scanner</a></li>
-                <li class="sidebar-nav-item"><a href="live-detection.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📹</span>Live Detection</a></li>
-                <li class="sidebar-nav-item"><a href="result.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📋</span>History</a></li>
+                <li class="sidebar-nav-item"><a href="dashboard.html" class="sidebar-nav-link"><span
+                            class="sidebar-nav-icon">📊</span>Dashboard</a></li>
+                <li class="sidebar-nav-item"><a href="scanner_with_viz.html" class="sidebar-nav-link active"><span
+                            class="sidebar-nav-icon">🔍</span>Scanner</a></li>
+                <li class="sidebar-nav-item"><a href="live-detection.html" class="sidebar-nav-link"><span
+                            class="sidebar-nav-icon">📹</span>Live Detection</a></li>
+                <li class="sidebar-nav-item"><a href="result.html" class="sidebar-nav-link"><span
+                            class="sidebar-nav-icon">📋</span>History</a></li>
             </ul>
             <div class="sidebar-footer">
                 <div class="user-info">
@@ -171,13 +1243,13 @@
                 <h1 class="page-title">File Scanner</h1>
                 <p class="page-subtitle">Upload an image, video, or audio file for deepfake analysis</p>
             </div>
-            
+
             <div class="scanner-container">
                 <div class="upload-card" id="uploadCard">
                     <div class="upload-icon">🎯</div>
                     <h2 class="upload-title">Analyze Your File</h2>
                     <p class="upload-subtitle">Select a file type and upload your media</p>
-                    
+
                     <div class="media-types">
                         <div class="media-type-btn" onclick="selectMediaType('image')" id="imageBtn">
                             <span class="media-type-icon">🖼️</span>
@@ -192,20 +1264,20 @@
                             <span class="media-type-label">Audio</span>
                         </div>
                     </div>
-                    
+
                     <p id="mediaTypeStatus" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
                         Click a type above to filter, then click "Choose File"
                     </p>
-                    
+
                     <input type="file" id="fileInput" style="display: none;" accept="image/*,video/*,audio/*" multiple>
                     <button class="browse-btn" onclick="openFileBrowser()">📁 Choose File</button>
-                    
+
                     <div class="drop-zone" id="dropZone">
                         <div class="drop-zone-icon">☁️</div>
                         <div class="drop-zone-text">Or drag and drop your file here</div>
                         <div class="drop-zone-hint">Supports: JPG, PNG, GIF, MP4, AVI, WAV, MP3</div>
                     </div>
-                    
+
                     <div class="selected-file" id="selectedFile">
                         <div class="selected-file-icon">📄</div>
                         <div class="selected-file-info">
@@ -214,11 +1286,15 @@
                         </div>
                         <button class="selected-file-remove" onclick="removeFile()">×</button>
                     </div>
-                    
-                    <button class="btn btn-primary btn-lg analyze-btn" id="analyzeBtn" onclick="analyzeFile()">🔍 Analyze File</button>
+
+                    <div class="file-preview" id="filePreview"></div>
+
+                    <button class="btn btn-primary btn-lg analyze-btn" id="analyzeBtn" onclick="analyzeFile()">🔍
+                        Analyze File</button>
                 </div>
 
-                <div class="results-section" id="resultsSection" style="display: flex; flex-direction: column; gap: 40px;">
+                <div class="results-section" id="resultsSection"
+                    style="display: flex; flex-direction: column; gap: 40px;">
                     <!-- Dynamically Generated from JS -->
                 </div>
             </div>
@@ -262,17 +1338,17 @@
         function openFileBrowser() { document.getElementById('fileInput').click(); }
 
         var fileInput = document.getElementById('fileInput');
-        fileInput.addEventListener('change', function(e) { if (e.target.files.length > 0) handleFileSelect(e.target.files); });
+        fileInput.addEventListener('change', function (e) { if (e.target.files.length > 0) handleFileSelect(e.target.files); });
 
         var dropZone = document.getElementById('dropZone');
-        dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('dragover'); });
-        dropZone.addEventListener('drop', function(e) { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files); });
+        dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('dragover'); });
+        dropZone.addEventListener('drop', function (e) { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files); });
         dropZone.addEventListener('click', openFileBrowser);
 
         function handleFileSelect(files) {
             selectedFiles = Array.from(files);
-            if(selectedFiles.length === 1) {
+            if (selectedFiles.length === 1) {
                 document.getElementById('fileName').textContent = selectedFiles[0].name;
                 document.getElementById('fileSize').textContent = formatFileSize(selectedFiles[0].size);
             } else {
@@ -282,41 +1358,116 @@
             }
             document.getElementById('selectedFile').classList.add('show');
             document.getElementById('analyzeBtn').classList.add('show');
+            renderFilePreview(selectedFiles);
         }
 
-        function removeFile() { selectedFiles = []; fileInput.value = ''; document.getElementById('selectedFile').classList.remove('show'); document.getElementById('analyzeBtn').classList.remove('show'); }
+        function removeFile() {
+            selectedFiles = [];
+            fileInput.value = '';
+            document.getElementById('selectedFile').classList.remove('show');
+            document.getElementById('filePreview').classList.remove('show');
+            document.getElementById('filePreview').innerHTML = '';
+            document.getElementById('analyzeBtn').classList.remove('show');
+        }
         function formatFileSize(bytes) { if (bytes === 0) return '0 Bytes'; var k = 1024; var sizes = ['Bytes', 'KB', 'MB', 'GB']; var i = Math.floor(Math.log(bytes) / Math.log(k)); return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]; }
+
+        function resolveMediaUrl(url) {
+            if (!url) return '';
+            if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) {
+                return url;
+            }
+            var base = (window.config && window.config.API_URL) ? window.config.API_URL : '';
+            if (base.endsWith('/') && url.startsWith('/')) {
+                return base.slice(0, -1) + url;
+            }
+            if (!base.endsWith('/') && !url.startsWith('/')) {
+                return base + '/' + url;
+            }
+            return base + url;
+        }
+
+        function renderFilePreview(files) {
+            var preview = document.getElementById('filePreview');
+            preview.innerHTML = '';
+            if (!files || files.length === 0) {
+                preview.classList.remove('show');
+                return;
+            }
+
+            var file = files[0];
+            var previewUrl = URL.createObjectURL(file);
+            var content = '';
+
+            if (files.length > 1) {
+                content = `
+                    <div class="preview-media">
+                        <div class="preview-message" style="padding: 24px; text-align: center;">${files.length} files selected. Preview is available for the first file.</div>
+                    </div>
+                `;
+            }
+            else if (file.type.startsWith('image/')) {
+                content = `
+                    <div class="preview-media">
+                        <img src="${previewUrl}" alt="Preview image">
+                    </div>
+                    <div class="preview-message">Preview of the selected image before analysis.</div>
+                `;
+            } else if (file.type.startsWith('video/')) {
+                content = `
+                    <div class="preview-media">
+                        <video src="${previewUrl}" controls muted></video>
+                    </div>
+                    <div class="preview-message">Preview the selected video before analysis.</div>
+                `;
+            } else if (file.type.startsWith('audio/')) {
+                content = `
+                    <div class="preview-media" style="padding: 16px;">
+                        <audio src="${previewUrl}" controls></audio>
+                    </div>
+                    <div class="preview-message">Preview the selected audio before analysis.</div>
+                `;
+            } else {
+                content = `
+                    <div class="preview-media">
+                        <div class="preview-message" style="padding: 24px; text-align: center;">Preview is unavailable for this file type.</div>
+                    </div>
+                `;
+            }
+
+            preview.innerHTML = content;
+            preview.classList.add('show');
+        }
 
         async function analyzeFile() {
             if (selectedFiles.length === 0) { alert('Please select a file first!'); return; }
             var user = checkAuth(); if (!user) return;
             document.getElementById('loadingOverlay').classList.add('show');
-            
+
             var resultsSection = document.getElementById('resultsSection');
             resultsSection.innerHTML = '<h2 style="font-size: 1.5rem; font-weight: 700; border-bottom: 2px solid var(--border); padding-bottom: 12px;">📊 Batch Analysis Results</h2>';
             document.getElementById('uploadCard').style.display = 'none';
             resultsSection.classList.add('show');
 
-            for(let i=0; i<selectedFiles.length; i++) {
+            for (let i = 0; i < selectedFiles.length; i++) {
                 let file = selectedFiles[i];
                 var formData = new FormData(); formData.append('media', file); formData.append('userId', user.id);
                 try {
                     var response = await fetch(window.config.API_URL + '/api/analyze', { method: 'POST', body: formData });
                     var data = await response.json();
-                    if (response.ok) { 
+                    if (response.ok) {
                         let html = generateResultHtml(data, file, i);
                         resultsSection.insertAdjacentHTML('beforeend', html);
                         renderGraphsAfterInjection(data, file, i);
                     }
                     else { resultsSection.insertAdjacentHTML('beforeend', `<div style="color:red; margin: 20px;">Analysis failed for ${file.name}: ${data.error || 'Unknown error'}</div>`); }
-                } catch (error) { 
-                    console.error('Analysis error:', error); 
-                    resultsSection.insertAdjacentHTML('beforeend', `<div style="color:red; margin: 20px;">Connection error analyzing ${file.name}.</div>`); 
+                } catch (error) {
+                    console.error('Analysis error:', error);
+                    resultsSection.insertAdjacentHTML('beforeend', `<div style="color:red; margin: 20px;">Connection error analyzing ${file.name}.</div>`);
                 }
             }
-            
+
             document.getElementById('loadingOverlay').classList.remove('show');
-            
+
             resultsSection.insertAdjacentHTML('beforeend', `
                 <div style="text-align: center; margin-top: 32px; border-top: 1px solid var(--border); padding-top: 24px;">
                     <button class="btn btn-primary" onclick="newAnalysis()">➕ New Batch Analysis</button>
@@ -325,252 +1476,559 @@
         }
 
         function generateResultHtml(data, file, id) {
-            var isReal = !data.is_deepfake;
-            var headerClass = isReal ? 'real' : 'fake';
-            var icon = isReal ? '✅' : '⚠️';
-            var label = isReal ? 'Authentic' : 'Deepfake Detected';
-            var score = data.confidence + '%';
-            
-            var visualScr = data.feature_scores ? data.feature_scores['Visual Artifacts'] || 'N/A' : 'N/A';
-            var audioScr = data.feature_scores ? data.feature_scores['Audio Consistency'] || 'N/A' : 'N/A';
-            var metaScr = data.feature_scores ? data.feature_scores['Metadata Integrity'] || 'N/A' : 'N/A';
-            
-            var fType = file.type || 'Unknown';
-            var camera = 'Unknown';
-            var captureDate = 'Unknown';
-            if (data.metadata_analysis) {
-                var cMatch = data.metadata_analysis.find(m => m.title === 'Camera Model');
-                if(cMatch) camera = cMatch.description;
-                var dMatch = data.metadata_analysis.find(m => m.title === 'Capture Date');
-                if(dMatch) captureDate = dMatch.description;
-            }
-            
-            var judgment = data.chief_judgment ? data.chief_judgment.description : 'Authentic';
-            
-            var mediaType = data.type || (data.media_preview && data.media_preview.type) || 'unknown';
+            var isFake = data.is_deepfake;
+            var label = isFake ? 'Deepfake Detected' : 'Authentic';
+            var confidence = data.confidence || 0;
+            var riskLevel = data.risk_level || (isFake ? "High" : "Low");
+            var riskDesc = data.risk_description || (isFake ? "Significant indicators of manipulation detected." : "Content appears to be authentic with minor variations.");
+
+            var visualScr = data.feature_scores ? data.feature_scores['Visual Artifacts'] || 0 : 0;
+            var audioScr = data.feature_scores ? data.feature_scores['Audio Consistency'] || 0 : 0;
+            var metaScr = data.feature_scores ? data.feature_scores['Metadata Integrity'] || 0 : 0;
+
             var url = URL.createObjectURL(file);
             var previewHtml = '';
-            if (file.type.startsWith('image/')) previewHtml = `<img src="${url}" alt="Image">`;
-            else if (file.type.startsWith('video/')) previewHtml = `<video src="${url}" controls></video>`;
-            else if (file.type.startsWith('audio/')) previewHtml = `<audio src="${url}" controls></audio>`;
-            else previewHtml = `<div class="media-preview-placeholder">📄</div>`;
+            var controlsHtml = '';
+            var heatmapPreviewHtml = '';
 
-            var heatmapDisplay = (data.graphs && data.graphs.manipulation_regions && data.graphs.manipulation_regions.length > 0) || data.is_deepfake ? 'block' : 'none';
-            var timelineInfo = data.graphs && data.graphs.consistency_timeline ? data.graphs.consistency_timeline : data.timeline;
-            var timelineDisplay = (timelineInfo && timelineInfo.length > 0) || (mediaType === 'video' || mediaType === 'audio') ? 'block' : 'none';
-            
+            if (file.type.startsWith('image/')) {
+                previewHtml = `
+                    <img id="mediaElement_${id}" src="${url}" alt="Image">
+                    <canvas class="media-overlay-canvas" id="overlayCanvas_${id}"></canvas>
+                `;
+                controlsHtml = `
+                    <div class="controls-stage">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.85rem; font-weight:600; color:#9ca3af;">Heatmap Overlay Opacity</span>
+                            <span id="opacityVal_${id}" style="font-size:0.85rem; font-weight:700; color:#fff;">75%</span>
+                        </div>
+                        <input type="range" id="opacitySlider_${id}" min="0" max="1" step="0.05" value="0.75" style="width:100%;">
+                    </div>
+                `;
+            } else if (file.type.startsWith('video/')) {
+                previewHtml = `
+                    <video id="mediaElement_${id}" src="${url}" playsinline loop muted></video>
+                    <canvas class="media-overlay-canvas" id="overlayCanvas_${id}"></canvas>
+                `;
+                controlsHtml = `
+                    <div class="controls-stage">
+                        <div style="display:flex; gap:16px; align-items:center;">
+                            <button id="playBtn_${id}" style="background:var(--primary); border:none; color:white; padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer;">▶ Play</button>
+                            <div class="slider-wrapper" style="flex:1;">
+                                <input type="range" class="scrub-timeline" id="scrubTimeline_${id}" min="0" max="100" value="0">
+                                <div class="scrub-tooltip" id="scrubTooltip_${id}">0%</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                            <span style="font-size:0.85rem; font-weight:600; color:#9ca3af;">Heatmap Overlay Opacity</span>
+                            <span id="opacityVal_${id}" style="font-size:0.85rem; font-weight:700; color:#fff;">75%</span>
+                        </div>
+                        <input type="range" id="opacitySlider_${id}" min="0" max="1" step="0.05" value="0.75" style="width:100%;">
+                    </div>
+                `;
+            } else if (file.type.startsWith('audio/')) {
+                previewHtml = `
+                    <div style="width:100%; display:flex; flex-direction:column; gap:16px; align-items:center; justify-content:center; padding:32px;">
+                        <span style="font-size:4rem;">🔊</span>
+                        <audio id="mediaElement_${id}" src="${url}" controls style="width:100%;"></audio>
+                    </div>
+                `;
+            } else {
+                previewHtml = `<div class="media-preview-placeholder">📄</div>`;
+            }
+
+            var heatmapPreviewUrls = [];
+            if (data.frame_heatmap_urls && data.frame_heatmap_urls.length > 0) {
+                heatmapPreviewUrls = data.frame_heatmap_urls;
+            } else if (data.heatmap_url) {
+                heatmapPreviewUrls = [data.heatmap_url];
+            }
+
+            if (heatmapPreviewUrls.length > 0) {
+                console.log('Heatmap preview URLs for file', file.name, data.frame_heatmap_urls, data.heatmap_url);
+                console.log('Resolved heatmap URLs:', heatmapPreviewUrls.map(resolveMediaUrl));
+                var thumbnailItems = heatmapPreviewUrls.map(function (url, idx) {
+                    return `
+                        <div class="heatmap-snapshot w-full">
+                            <img src="${resolveMediaUrl(url)}" alt="Heatmap ${idx + 1}">
+                        </div>
+                    `;
+                }).join('');
+                heatmapPreviewHtml = `
+                    <div class="heatmap-snapshots" id="heatmapPreview_${id}">
+                        ${thumbnailItems}
+                    </div>
+                `;
+            }
+
+            var recommendations = data.recommendations || [];
+            if (recommendations.length === 0) {
+                if (isFake) {
+                    recommendations = [
+                        "Verify the source of this content through additional means",
+                        "Do not share this content without further verification",
+                        "Check for metadata inconsistencies"
+                    ];
+                } else {
+                    recommendations = [
+                        "Content appears to be authentic",
+                        "However, always verify from original sources when possible"
+                    ];
+                }
+            }
+
+            var evidenceItems = [];
+            evidenceItems.push(`Visual evidence score: ${visualScr}%`);
+            if (typeof data.audio_confidence !== 'undefined' && data.audio_confidence !== null) {
+                evidenceItems.push(`Audio consistency score: ${data.audio_confidence}%`);
+            }
+            if (typeof metaScr !== 'undefined' && metaScr !== null) {
+                evidenceItems.push(`Metadata integrity score: ${metaScr}%`);
+            }
+            if (data.media_type) {
+                evidenceItems.push(`Media type: ${data.media_type}`);
+            }
+            if (data.file_hash) {
+                evidenceItems.push(`File fingerprint: ${data.file_hash.slice(0, 12)}...`);
+            }
+
+            var scoreCount = 2;
+            if (typeof data.audio_confidence !== 'undefined' && data.audio_confidence !== null) scoreCount += 1;
+            if (typeof metaScr !== 'undefined' && metaScr !== null) scoreCount += 1;
+            var evidenceScore = Math.round((visualScr + (data.audio_confidence || 0) + (metaScr || 0)) / scoreCount);
+            var evidenceLevel = evidenceScore >= 75 ? 'Strong' : (evidenceScore >= 45 ? 'Moderate' : 'Weak');
+            var evidenceClass = evidenceScore >= 75 ? 'strength' : (evidenceScore >= 45 ? 'moderate' : 'weak');
+
+            var frameScores = data.frame_scores || [];
+
+            var inferenceMode = 'Mock/Test Logic';
+            var inferenceClass = 'mock';
+            if (data.inference_source === 'trained_model') {
+                inferenceMode = 'AI Model (Trained)';
+                inferenceClass = 'trained';
+            } else if (data.inference_source === 'untrained_fallback') {
+                inferenceMode = 'AI Model (Untrained)';
+                inferenceClass = 'mock';
+            }
+
+            var evidenceHtml = evidenceItems.map(item => `<li class="doc-item">${item}</li>`).join('');
+            var recomItemsHtml = recommendations.map(r => `<li class="recom-item">${r}</li>`).join('');
+            var explanationText = data.explanation || (data.analysis && data.analysis.facial_analysis ? data.analysis.facial_analysis.explanation : riskDesc) || riskDesc;
+            var summaryText = data.summary || `This analysis synthesizes visual artifact detection, audio integrity checks, and metadata validation to classify the media content. A ${evidenceLevel.toLowerCase()} evidence rating was assigned based on the combined feature confidence.`;
+
+            var modelInfoHtml = '';
+            if (data.model_info && data.model_info.visual_model) {
+                const vm = data.model_info.visual_model;
+                modelInfoHtml = `<div class="model-info" style="margin-top: 16px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-weight: 600; color: #e2e8f0; margin-bottom: 4px;">Model Information</div>
+                    <div>Status: ${vm.trained ? '<span style="color:#10B981">Trained</span>' : '<span style="color:#F59E0B">Untrained (Mock Fallback)</span>'}</div>
+                    ${vm.source ? `<div>Source: ${vm.source}</div>` : ''}
+                    ${vm.dataset ? `<div>Dataset: ${vm.dataset}</div>` : ''}
+                    ${vm.accuracy ? `<div>Accuracy: ${(vm.accuracy * 100).toFixed(1)}%</div>` : ''}
+                </div>`;
+            }
+
+            var technicalNotes = `
+                <div class="doc-section">
+                    <h4 class="doc-title">Detection Evidence & Documentation</h4>
+                    <p>${explanationText}</p>
+                    <ul class="doc-list">
+                        ${evidenceHtml}
+                    </ul>
+                    <div class="doc-subtitle">How this result was generated</div>
+                    <p class="doc-text">The system combines face detection, visual artifact scoring, audio spectrogram analysis, and metadata anomaly checks to calculate a confidence score and classify the media.</p>
+                    ${modelInfoHtml}
+                </div>
+            `;
+            var proofHtml = '';
+            if (file.type.startsWith('audio/') && data.heatmap_url) {
+                proofHtml = `
+                    <div class="proof-card">
+                        <div class="proof-title">Audio Proof</div>
+                        <img class="proof-image" src="${resolveMediaUrl(data.heatmap_url)}" alt="Audio Spectrogram Proof">
+                        <p class="proof-caption">Mel-spectrogram extracted from the uploaded audio. This visual representation helps confirm audio tampering and supports the final confidence score.</p>
+                        <table class="proof-table">
+                            <thead>
+                                <tr><th>Metric</th><th>Value</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Audio confidence</td><td>${data.audio_confidence || confidence}%</td></tr>
+                                <tr><td>Evidence strength</td><td>${evidenceLevel}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (file.type.startsWith('video/') && frameScores.length > 0) {
+                var scoreRows = frameScores.slice(0, 12).map(function (score, idx) {
+                    return `<tr><td>${idx + 1}</td><td>${score}%</td></tr>`;
+                }).join('');
+                proofHtml = `
+                    <div class="proof-card">
+                        <div class="proof-title">Video Proof</div>
+                        <p class="proof-caption">Frame-by-frame anomaly scores derived from the model. Higher values indicate frames with stronger manipulation evidence.</p>
+                        <table class="proof-table">
+                            <thead>
+                                <tr><th>Frame</th><th>Score</th></tr>
+                            </thead>
+                            <tbody>
+                                ${scoreRows}
+                            </tbody>
+                        </table>
+                        ${frameScores.length > 12 ? `<div class="proof-note">Showing first 12 of ${frameScores.length} analyzed frames.</div>` : ''}
+                    </div>
+                `;
+            } else if (data.frame_heatmap_urls && data.frame_heatmap_urls.length > 0) {
+                proofHtml = `
+                    <div class="proof-card">
+                        <div class="proof-title">Video Heatmap Proof</div>
+                        <p class="proof-caption">Sample frame heatmaps show the model's highest-risk segments across the uploaded video.</p>
+                        <div class="heatmap-snapshots" style="margin-top: 14px;">${data.frame_heatmap_urls.map(function (url) {
+                    return `<div class="heatmap-snapshot"><img src="${resolveMediaUrl(url)}" alt="Heatmap"></div>`;
+                }).join('')}</div>
+                    </div>
+                `;
+            }
+            var reasoningBlockHtml = '';
+            if (data.reasoning) {
+                var r = data.reasoning;
+                var metrics = r.artifact_metrics || {};
+                var findingsHtml = (r.key_findings || []).map(function(f) {
+                    return '<li style="padding: 4px 8px; background: rgba(30, 41, 59, 0.5); border-left: 3px solid #38bdf8; border-radius: 4px; font-size: 0.82rem; color: #cbd5e1;">📌 ' + f + '</li>';
+                }).join('');
+                reasoningBlockHtml = `
+                    <div class="reasoning-card" style="margin-top: 16px; padding: 18px; background: rgba(15, 23, 42, 0.85); border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <h4 style="font-size: 1rem; font-weight: 700; color: #38bdf8; margin: 0 0 8px 0; display: flex; align-items: center; gap: 8px;">
+                            🛡️ SynthShield Reasoning & Explainability
+                        </h4>
+                        <div style="font-size: 0.88rem; color: #f1f5f9; font-weight: 600; margin-bottom: 6px;">${r.summary}</div>
+                        <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 10px; line-height: 1.4;"><strong>Rationale:</strong> ${r.primary_reasoning}</div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <div style="font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">Key Neural Findings:</div>
+                            <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 6px;">
+                                ${findingsHtml}
+                            </ul>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 0.78rem;">
+                            <div style="background: rgba(30, 41, 59, 0.7); padding: 6px 10px; border-radius: 6px;">
+                                <span style="color: #94a3b8;">Facial Boundary Continuity:</span>
+                                <strong style="color: #38bdf8; float: right;">${metrics.boundary_blend_score || 0}%</strong>
+                            </div>
+                            <div style="background: rgba(30, 41, 59, 0.7); padding: 6px 10px; border-radius: 6px;">
+                                <span style="color: #94a3b8;">Noise & Texture Uniformity:</span>
+                                <strong style="color: #38bdf8; float: right;">${metrics.noise_distribution_score || 0}%</strong>
+                            </div>
+                            <div style="background: rgba(30, 41, 59, 0.7); padding: 6px 10px; border-radius: 6px;">
+                                <span style="color: #94a3b8;">Spectral Harmonic Coherence:</span>
+                                <strong style="color: #38bdf8; float: right;">${metrics.spectral_coherence_score || 0}%</strong>
+                            </div>
+                            <div style="background: rgba(30, 41, 59, 0.7); padding: 6px 10px; border-radius: 6px;">
+                                <span style="color: #94a3b8;">Landmark Alignment:</span>
+                                <strong style="color: #38bdf8; float: right;">${metrics.facial_consistency_score || 0}%</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            var summaryCard = `
+                <div class="summary-card">
+                    <div class="summary-title">Technical Summary</div>
+                    <div class="summary-text">${summaryText}</div>
+                </div>
+            `;
+            var riskClass = riskLevel.toLowerCase();
+
             var html = `
-            <div class="result-card" style="margin-bottom: 32px; padding: 32px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-md);">
-                <h3 style="margin-bottom: 24px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 12px;">📄 File: ${file.name}</h3>
+            <div class="result-card" style="margin-bottom: 40px; padding: 24px; background: #111827; border-radius: var(--radius-lg); border: 1px solid #1f2937; width: 100%; max-width: 1200px; box-sizing: border-box; overflow: hidden;">
+                <h3 style="margin-bottom: 20px; font-weight: 800; font-size: 1.25rem; color:#fff; display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 12px;">
+                    <span>📄 File: ${file.name}</span>
+                    <span style="font-size:0.85rem; font-weight:500; color:#6b7280;">ID: ${id}</span>
+                </h3>
                 
-                <div class="result-header ${headerClass}">
-                    <div class="result-icon">${icon}</div>
-                    <div class="result-label">${label}</div>
-                    <div class="confidence-score">${score}</div>
-                    <div class="confidence-label">Confidence Score</div>
-                </div>
-                
-                <div class="viz-section">
-                    <div class="viz-card">
-                        <h3 class="viz-card-title">📱 Media Preview</h3>
-                        <div class="media-preview-container">
-                            <div class="media-preview-box">
-                                <div class="media-preview-item">
-                                    ${previewHtml}
-                                </div>
+                <div class="split-layout">
+                    <!-- Left Column: Video/Image Player & Overlay -->
+                    <div class="preview-card">
+                        <div class="media-stage" id="mediaStage_${id}">
+                            ${previewHtml}
+                        </div>
+                        ${controlsHtml}
+                        ${heatmapPreviewHtml}
+                    </div>
+                    
+                    <!-- Right Column: Glassmorphism Info Panel -->
+                    <aside class="glass-aside">
+                        <div class="gauge-section">
+                            <div class="circular-gauge">
+                                <svg>
+                                    <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
+                                    <circle class="circle-fill ${isFake ? 'fake' : 'real'}" id="gaugeCircle_${id}" cx="50" cy="50" r="40" stroke-dasharray="251.3" stroke-dashoffset="251.3"></circle>
+                                </svg>
+                                <div class="gauge-val" id="gaugeVal_${id}">0%</div>
+                            </div>
+                            <div class="verdict-info">
+                                <div class="verdict-title" style="color: ${isFake ? '#f87171' : '#34d399'}">${label}</div>
+                                <span class="badge-risk ${riskClass}">${riskLevel} Risk</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="viz-section" id="heatmapSection_${id}" style="display:${heatmapDisplay};">
-                    <div class="viz-card">
-                        <h3 class="viz-card-title">🗺️ Manipulation Heatmap</h3>
-                        <div class="heatmap-container">
-                            <canvas id="heatmapCanvas_${id}" width="400" height="300"></canvas>
-                            <div class="heatmap-legend">
-                                <span>🔴 High Manipulation</span>
-                                <span>🟡 Medium</span>
-                                <span>🟢 No Manipulation</span>
+                        
+                        <div>
+                            <p style="font-size:0.9rem; color:#9ca3af; line-height:1.5;">${riskDesc}</p>
+                        </div>
+                        <div>
+                            <span class="badge-evidence ${evidenceClass}">${evidenceLevel} Evidence</span>
+                            <span class="badge-inference ${inferenceClass}">${inferenceMode}</span>
+                        </div>
+                        ${reasoningBlockHtml}
+                        ${summaryCard}
+                        <div class="score-list">
+                            <h4 style="font-size:0.9rem; font-weight:700; color:#fff; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:8px;">Feature Analysis</h4>
+                            <div class="score-row">
+                                <span class="score-label">Visual Artifacts</span>
+                                <span class="score-val">${visualScr}%</span>
+                            </div>
+                            <div class="score-row">
+                                <span class="score-label">Audio Consistency</span>
+                                <span class="score-val">${audioScr}%</span>
+                            </div>
+                            <div class="score-row">
+                                <span class="score-label">Metadata Integrity</span>
+                                <span class="score-val">${metaScr}%</span>
                             </div>
                         </div>
-                    </div>
+                        
+                        <div class="recom-card">
+                            <h4 class="recom-title">AI Recommendations</h4>
+                            <ul class="recom-list">
+                                ${recomItemsHtml}
+                            </ul>
+                        </div>
+                        ${proofHtml}
+                        ${technicalNotes}
+                    </aside>
                 </div>
-
-                <div class="viz-section" id="consistencySection_${id}" style="display:${timelineDisplay};">
-                    <div class="viz-card">
-                        <h3 class="viz-card-title">📊 Consistency Timeline</h3>
-                        <div class="consistency-chart" id="consistencyChart_${id}"></div>
-                        <div style="display:flex;justify-content:center;gap:24px;margin-top:12px;font-size:0.85rem;">
-                            <span><span style="display:inline-block;width:12px;height:12px;background:#10B981;border-radius:2px;"></span> Authentic</span>
-                            <span><span style="display:inline-block;width:12px;height:12px;background:#EF4444;border-radius:2px;"></span> Manipulated</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="viz-section">
-                    <div class="viz-card">
-                        <h3 class="viz-card-title">📈 Confidence Breakdown</h3>
-                        <div class="bar-chart" id="confidenceChart_${id}"></div>
-                    </div>
-                </div>
-
-                <div class="analysis-grid">
-                    <div class="analysis-card">
-                        <h3 class="analysis-card-title">Chief Judgment</h3>
-                        <div class="analysis-row">
-                            <span class="analysis-label">Assessment</span>
-                            <span class="analysis-value">${judgment}</span>
-                        </div>
-                    </div>
-                    <div class="analysis-card">
-                        <h3 class="analysis-card-title">Feature Scores</h3>
-                        <div class="analysis-row">
-                            <span class="analysis-label">Visual Artifacts</span>
-                            <span class="analysis-value">${visualScr}</span>
-                        </div>
-                        <div class="analysis-row">
-                            <span class="analysis-label">Audio Consistency</span>
-                            <span class="analysis-value">${audioScr}</span>
-                        </div>
-                        <div class="analysis-row">
-                            <span class="analysis-label">Metadata Integrity</span>
-                            <span class="analysis-value">${metaScr}</span>
-                        </div>
-                    </div>
-                    <div class="analysis-card">
-                        <h3 class="analysis-card-title">Metadata Analysis</h3>
-                        <div class="analysis-row">
-                            <span class="analysis-label">File Type</span>
-                            <span class="analysis-value">${fType}</span>
-                        </div>
-                        <div class="analysis-row">
-                            <span class="analysis-label">Camera</span>
-                            <span class="analysis-value">${camera}</span>
-                        </div>
-                        <div class="analysis-row">
-                            <span class="analysis-label">Date</span>
-                            <span class="analysis-value">${captureDate}</span>
-                        </div>
-                    </div>
-                </div>
-                <div id="detailedAnalysis_${id}" class="analysis-grid" style="margin-top: 24px;"></div>
             </div>
             `;
             return html;
         }
 
         function renderGraphsAfterInjection(data, file, id) {
-            var canvas = document.getElementById('heatmapCanvas_' + id);
-            if (canvas) {
+            var isFake = data.is_deepfake;
+            var confidence = data.confidence || 0;
+
+            // 1. Animate circular gauge progress
+            var circle = document.getElementById('gaugeCircle_' + id);
+            var valText = document.getElementById('gaugeVal_' + id);
+            if (circle && valText) {
+                var circumference = 251.3;
+                var offset = circumference - (confidence / 100) * circumference;
+
+                // Trigger reflow & animate
+                setTimeout(function () {
+                    circle.style.strokeDashoffset = offset;
+                }, 100);
+
+                // Count up text
+                var count = 0;
+                var duration = 1000; // ms
+                var startTime = null;
+
+                function animateCount(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    var progress = timestamp - startTime;
+                    var currentVal = Math.min(confidence, Math.floor((progress / duration) * confidence));
+                    valText.textContent = currentVal + '%';
+                    if (progress < duration) {
+                        requestAnimationFrame(animateCount);
+                    } else {
+                        valText.textContent = confidence + '%';
+                    }
+                }
+                requestAnimationFrame(animateCount);
+            }
+
+            // 2. Heatmap overlay logic
+            var canvas = document.getElementById('overlayCanvas_' + id);
+            var mediaEl = document.getElementById('mediaElement_' + id);
+
+            if (canvas && mediaEl) {
                 var ctx = canvas.getContext('2d');
-                if (data.graphs && data.graphs.manipulation_regions && data.graphs.manipulation_regions.length > 0) {
-                    var gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                    gradient.addColorStop(0, '#10B981'); gradient.addColorStop(1, '#059669');
-                    ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    data.graphs.manipulation_regions.forEach(function(region) {
-                        var x = (region.x / 100) * canvas.width; var y = (region.y / 100) * canvas.height;
-                        var w = (region.width / 100) * canvas.width; var h = (region.height / 100) * canvas.height;
-                        var redGradient = ctx.createRadialGradient(x + w/2, y + h/2, 0, x + w/2, y + h/2, Math.max(w, h)/2);
-                        redGradient.addColorStop(0, 'rgba(239, 68, 68, ' + region.intensity + ')');
-                        redGradient.addColorStop(1, 'rgba(239, 68, 68, 0)');
-                        ctx.fillStyle = redGradient; ctx.fillRect(x - w/2, y - h/2, w * 2, h * 2);
-                    });
-                } else if (data.is_deepfake) {
-                    var gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                    gradient.addColorStop(0, '#10B981'); gradient.addColorStop(0.5, '#FBBF24'); gradient.addColorStop(1, '#10B981');
-                    ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                }
-            }
+                var overlayImg = new Image();
+                var frameHeatmapImages = [];
+                var activeHeatmapIndex = 0;
 
-            var chart = document.getElementById('consistencyChart_' + id);
-            if (chart) {
-                var timeline = data.graphs && data.graphs.consistency_timeline ? data.graphs.consistency_timeline : data.timeline;
-                if (timeline && timeline.length > 0) {
-                    for (var i = 0; i < 50; i++) {
-                        var bar = document.createElement('div');
-                        var segment = timeline[Math.floor(i / (50 / timeline.length))];
-                        var isManipulated = segment && segment.status === 'manipulated';
-                        bar.className = 'consistency-bar ' + (isManipulated ? 'manipulated' : 'authentic');
-                        bar.style.height = (Math.random() * 80 + 20) + '%';
-                        bar.title = segment ? (segment.start + '-' + segment.end + 's: ' + segment.status) : '';
-                        chart.appendChild(bar);
-                    }
-                } else if (file.type.startsWith('video/') || file.type.startsWith('audio/')) {
-                    for (var i = 0; i < 50; i++) {
-                        var bar = document.createElement('div');
-                        bar.className = 'consistency-bar ' + (data.is_deepfake ? 'manipulated' : 'authentic');
-                        bar.style.height = (data.is_deepfake ? 70 + Math.random() * 30 : 10 + Math.random() * 20) + '%';
-                        chart.appendChild(bar);
+                // Set sizes once media loaded
+                function setupOverlay() {
+                    var displayWidth = mediaEl.clientWidth || mediaEl.videoWidth || 400;
+                    var displayHeight = mediaEl.clientHeight || mediaEl.videoHeight || 300;
+                    canvas.width = displayWidth;
+                    canvas.height = displayHeight;
+
+                    if (mediaEl.tagName === 'VIDEO' && data.frame_heatmap_urls && data.frame_heatmap_urls.length > 0) {
+                        console.log('Preparing frameHeatmapImages with URLs:', data.frame_heatmap_urls.map(resolveMediaUrl));
+                        frameHeatmapImages = data.frame_heatmap_urls.map(function (url, idx) {
+                            var img = new Image();
+                            img.crossOrigin = 'anonymous';
+                            // When an image loads, redraw the current frame if it matches the loaded index
+                            img.onload = function () {
+                                try {
+                                    console.log('Heatmap image loaded', idx, resolveMediaUrl(url));
+                                    // compute the index that corresponds to current playback time
+                                    if (mediaEl.duration && mediaEl.duration > 0 && frameHeatmapImages.length > 0) {
+                                        var curIdx = Math.floor((mediaEl.currentTime / mediaEl.duration) * frameHeatmapImages.length);
+                                        curIdx = Math.min(frameHeatmapImages.length - 1, Math.max(0, curIdx));
+                                        // If the loaded image is the one currently needed, draw it.
+                                        if (curIdx === idx || activeHeatmapIndex === idx) {
+                                            console.log('Drawing loaded heatmap for index', curIdx);
+                                            drawHeatmapFrame(curIdx);
+                                        }
+                                    } else {
+                                        // fallback: draw the active index when any image finishes loading
+                                        console.log('Drawing activeHeatmapIndex due to image load', activeHeatmapIndex);
+                                        drawHeatmapFrame(activeHeatmapIndex);
+                                    }
+                                } catch (e) {
+                                    console.warn('Error drawing heatmap on image load', e);
+                                }
+                            };
+                            img.onerror = function () { console.warn('Failed to load heatmap image:', resolveMediaUrl(url)); };
+                            img.src = resolveMediaUrl(url);
+                            return img;
+                        });
+                        // attempt an initial draw (will only render if the image(s) are complete)
+                        console.log('Initial draw attempt, frameHeatmapImages length =', frameHeatmapImages.length);
+                        drawHeatmapFrame(0);
+                    } else if (data.heatmap_url) {
+                        overlayImg.src = resolveMediaUrl(data.heatmap_url);
+                    } else {
+                        drawGradientOverlay(displayWidth, displayHeight);
                     }
                 }
-            }
 
-            var confChart = document.getElementById('confidenceChart_' + id);
-            if (confChart) {
-                var breakdown = data.graphs && data.graphs.confidence_breakdown ? data.graphs.confidence_breakdown : {
-                    visual_evidence: data.feature_scores ? data.feature_scores['Visual Artifacts'] || 0 : 0,
-                    audio_evidence: data.feature_scores ? data.feature_scores['Audio Consistency'] || 0 : 0,
-                    metadata_evidence: data.feature_scores ? data.feature_scores['Metadata Integrity'] || 0 : 0,
-                    temporal_evidence: 0
+                function drawGradientOverlay(displayWidth, displayHeight) {
+                    ctx.clearRect(0, 0, displayWidth, displayHeight);
+                    var grad = ctx.createRadialGradient(
+                        displayWidth / 2, displayHeight / 2, 10,
+                        displayWidth / 2, displayHeight / 2, Math.max(displayWidth, displayHeight) / 3
+                    );
+                    if (isFake) {
+                        grad.addColorStop(0, 'rgba(239, 68, 68, 0.8)');
+                        grad.addColorStop(0.5, 'rgba(245, 158, 11, 0.5)');
+                        grad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+                    } else {
+                        grad.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
+                        grad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+                    }
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, displayWidth, displayHeight);
+                }
+
+                function drawHeatmapFrame(index) {
+                    if (!Array.isArray(frameHeatmapImages) || frameHeatmapImages.length === 0) {
+                        console.log('drawHeatmapFrame: no frameHeatmapImages available');
+                        return;
+                    }
+                    activeHeatmapIndex = Math.min(Math.max(0, index), frameHeatmapImages.length - 1);
+                    var img = frameHeatmapImages[activeHeatmapIndex];
+                    if (!img) {
+                        console.log('drawHeatmapFrame: image object missing for index', activeHeatmapIndex);
+                        return;
+                    }
+                    if (!img.complete) {
+                        console.log('drawHeatmapFrame: image not yet complete for index', activeHeatmapIndex, 'src=', img.src);
+                        // attach a one-time onload to draw when ready
+                        img.onload = function () { try { console.log('Deferred draw after load for index', activeHeatmapIndex); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0, canvas.width, canvas.height); } catch (e) { console.warn('Deferred draw failed', e); } };
+                        return;
+                    }
+                    try {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        // small indicator in console to confirm draw occurred
+                        console.log('Heatmap drawn for index', activeHeatmapIndex, 'src=', img.src);
+                    } catch (e) {
+                        console.warn('drawHeatmapFrame error drawing image', e);
+                    }
+                }
+
+                overlayImg.onload = function () {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
                 };
-                var labels = { visual_evidence: 'Visual Evidence', audio_evidence: 'Audio Consistency', metadata_evidence: 'Metadata Integrity', temporal_evidence: 'Temporal Consistency' };
-                var colors = { visual_evidence: '#EF4444', audio_evidence: '#8B5CF6', metadata_evidence: '#10B981', temporal_evidence: '#F59E0B' };
-                
-                Object.keys(breakdown).forEach(function(key) {
-                    if (breakdown[key] > 0 || key !== 'temporal_evidence') {
-                        var hHtml = `
-                        <div class="bar-row">
-                            <div class="bar-label">${labels[key] || key}</div>
-                            <div class="bar-container"><div class="bar-fill" style="width: ${breakdown[key]}%; background: linear-gradient(to right, ${colors[key]}, ${colors[key]}99);"></div></div>
-                            <div class="bar-value">${breakdown[key]}%</div>
-                        </div>`;
-                        confChart.insertAdjacentHTML('beforeend', hHtml);
+
+                if (mediaEl.tagName === 'IMG') {
+                    if (mediaEl.complete) setupOverlay();
+                    else mediaEl.onload = setupOverlay;
+                } else if (mediaEl.tagName === 'VIDEO') {
+                    mediaEl.onloadedmetadata = setupOverlay;
+                }
+
+                // Opacity slider handler
+                var opacitySlider = document.getElementById('opacitySlider_' + id);
+                var opacityVal = document.getElementById('opacityVal_' + id);
+                if (opacitySlider && opacityVal) {
+                    opacitySlider.addEventListener('input', function (e) {
+                        var val = e.target.value;
+                        canvas.style.opacity = val;
+                        opacityVal.textContent = Math.round(val * 100) + '%';
+                    });
+                }
+            }
+
+            // 3. Playback control & Timeline Scrubbing for video
+            if (mediaEl && mediaEl.tagName === 'VIDEO') {
+                var playBtn = document.getElementById('playBtn_' + id);
+                var scrub = document.getElementById('scrubTimeline_' + id);
+                var tooltip = document.getElementById('scrubTooltip_' + id);
+
+                if (playBtn) {
+                    playBtn.addEventListener('click', function () {
+                        if (mediaEl.paused) {
+                            mediaEl.play();
+                            playBtn.textContent = '⏸ Pause';
+                        } else {
+                            mediaEl.pause();
+                            playBtn.textContent = '▶ Play';
+                        }
+                    });
+                }
+
+                // Map frame scores to timeline
+                var frameScores = data.frame_scores || [];
+                if (frameScores.length === 0) {
+                    // Fallback generator
+                    var base = isFake ? 80 : 15;
+                    for (var i = 0; i < 30; i++) {
+                        frameScores.push(Math.round(base + Math.random() * 15 - 7));
+                    }
+                }
+
+                mediaEl.addEventListener('timeupdate', function () {
+                    if (!mediaEl.duration) return;
+                    var percentage = (mediaEl.currentTime / mediaEl.duration) * 100;
+                    scrub.value = percentage;
+
+                    var scoreIdx = Math.floor((mediaEl.currentTime / mediaEl.duration) * frameScores.length);
+                    scoreIdx = Math.min(frameScores.length - 1, Math.max(0, scoreIdx));
+                    var currentScore = frameScores[scoreIdx] || 0;
+                    tooltip.textContent = 'Conf: ' + currentScore + '%';
+                    tooltip.style.left = percentage + '%';
+
+                    if (frameHeatmapImages.length > 0) {
+                        var heatmapIndex = Math.floor((mediaEl.currentTime / mediaEl.duration) * frameHeatmapImages.length);
+                        heatmapIndex = Math.min(frameHeatmapImages.length - 1, Math.max(0, heatmapIndex));
+                        drawHeatmapFrame(heatmapIndex);
                     }
                 });
-            }
 
-            var detSec = document.getElementById('detailedAnalysis_' + id);
-            var htmlDet = '';
-            if (data.detailed_analysis && detSec) {
-                var da = data.detailed_analysis;
-                var mediaType = da.type || 'unknown';
-                htmlDet += '<div class="analysis-card"><h3 class="analysis-card-title">' + mediaType.toUpperCase() + ' Detailed Analysis</h3>';
-                
-                if (mediaType === 'image') {
-                    if (da.dimensions) {
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Dimensions</span><span class="analysis-value">' + (da.dimensions.width || 'N/A') + '</span></div>';
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Color Space</span><span class="analysis-value">' + (da.dimensions.color_space || 'N/A') + '</span></div>';
-                    }
-                    if (da.pixel_analysis) {
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Noise Level</span><span class="analysis-value">' + (da.pixel_analysis.noise_level || 'N/A') + '</span></div>';
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Compression</span><span class="analysis-value">' + (da.pixel_analysis.compression_artifacts || 'N/A') + '</span></div>';
-                    }
-                    if (da.face_detection) {
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Faces Found</span><span class="analysis-value">' + (da.face_detection.faces_found || 'N/A') + '</span></div>';
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Face Clarity</span><span class="analysis-value">' + (da.face_detection.face_clarity || 'N/A') + '</span></div>';
-                    }
-                } else if (mediaType === 'video') {
-                    if (da.duration) {
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Duration</span><span class="analysis-value">' + da.duration + ' seconds</span></div>';
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">FPS</span><span class="analysis-value">' + (da.fps || 'N/A') + '</span></div>';
-                    }
-                    if (da.temporal_consistency) {
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Motion</span><span class="analysis-value">' + (da.temporal_consistency.motion_smoothness || 'N/A') + '</span></div>';
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Lip Sync</span><span class="analysis-value">' + (da.audio_video_sync ? da.audio_video_sync.lip_sync_accuracy : 'N/A') + '</span></div>';
-                    }
-                } else if (mediaType === 'audio') {
-                    if (da.duration) {
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Duration</span><span class="analysis-value">' + da.duration + ' seconds</span></div>';
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Sample Rate</span><span class="analysis-value">' + (da.sample_rate || 'N/A') + ' Hz</span></div>';
-                    }
-                    if (da.spectral_analysis) {
-                        htmlDet += '<div class="analysis-row"><span class="analysis-label">Spectral Centroid</span><span class="analysis-value">' + (da.spectral_analysis.spectral_centroid || 'N/A') + '</span></div>';
-                    }
-                }
-                htmlDet += '</div>';
-                detSec.innerHTML = htmlDet;
+                scrub.addEventListener('input', function (e) {
+                    if (!mediaEl.duration) return;
+                    var time = (e.target.value / 100) * mediaEl.duration;
+                    mediaEl.currentTime = time;
+                });
+
+                scrub.addEventListener('mouseenter', function () { tooltip.classList.add('show'); });
+                scrub.addEventListener('mouseleave', function () { tooltip.classList.remove('show'); });
             }
         }
 
@@ -589,5 +2047,5 @@
         }
     </script>
 </body>
-</html>
 
+</html>

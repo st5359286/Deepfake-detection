@@ -172,16 +172,14 @@ async function startAnalysis(file) {
         const userString = localStorage.getItem('user');
         const userId = userString ? JSON.parse(userString).id : null;
 
-        const response = await fetch(`${config.API_URL}/api/analyze-fast`, {
+        // Send full file to Node backend which will proxy to Python ML service
+        const form = new FormData();
+        form.append('media', file, file.name);
+        if (userId) form.append('userId', userId);
+
+        const response = await fetch(`${config.API_URL}/api/analyze`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                hash: fileHash,
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                userId: userId
-            })
+            body: form
         });
 
         clearInterval(progressInterval);

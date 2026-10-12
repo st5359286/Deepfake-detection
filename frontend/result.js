@@ -95,6 +95,9 @@ function displayResults(data) {
                 <h4 class="font-bold text-cyan mb-1">${data.chief_judgment.title}</h4>
                 <p class="text-sm">${data.chief_judgment.description}</p>
             </div>
+            <!-- Explanation and Modifications will be injected here -->
+            <div id="explanationContainer" class="mt-4 text-lg text-gray-200">${data.chief_judgment.explanation || ''}</div>
+            <div id="modificationsContainer" class="mt-2 flex flex-wrap gap-2 text-sm text-gray-400">${(data.chief_judgment.modifications || []).map(m => `<span class="bg-gray-700 px-2 py-1 rounded">${m}</span>`).join('')}</div>
         `;
   }
 
@@ -132,6 +135,10 @@ function renderFeatureGraph(container, scores) {
 
     const html = `
             <div class="group">
+                <main class="main-content">
+            <!-- Explanation and Modifications will be injected here -->
+            <div id="explanationContainer" class="mt-4 text-lg text-gray-200"></div>
+            <div id="modificationsContainer" class="mt-2 flex flex-wrap gap-2 text-sm text-gray-400"></div>
                 <div class="flex justify-between text-xs mb-1">
                     <span class="text-gray-400 font-mono">${key.toUpperCase()}</span>
                     <span class="font-bold text-white">${value}%</span>

@@ -1,0 +1,9 @@
+path,actual,score_fake,predicted
+deepfake-detector-backend\datasets\test\real\diploma certificate.jpeg,real,0.32716528,real
+deepfake-detector-backend\datasets\test\real\q3tab73c_salman-khan_625x300_15_June_25.jpg,real,0.04977437,real
+deepfake-detector-backend\datasets\test\real\suman.jpg,real,0.05787156,real
+deepfake-detector-backend\datasets\test\real\WhatsApp Image 2025-10-15 at 21.43.58_2070f0d2.jpg,real,0.17080128,real
+deepfake-detector-backend\datasets\test\fake\christopher-campbell-rDEOVtE7vOs-unsplash.jpg,fake,0.08279064,real
+deepfake-detector-backend\datasets\test\fake\houcine-ncib-B4TjXnI0Y2c-unsplash.jpg,fake,0.15231590,real
+deepfake-detector-backend\datasets\test\fake\irene-strong--FOUPtqP-mY-unsplash.jpg,fake,0.01987655,real
+deepfake-detector-backend\datasets\test\fake\jurica-koletic-7YVZYZeITc8-unsplash.jpg,fake,0.48338678,real

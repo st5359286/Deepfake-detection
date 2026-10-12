@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Deepfake Detector</title>
+    <title>Dashboard - SynthShield</title>
     <link rel="stylesheet" href="modern.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -373,8 +373,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <div class="logo-icon">🔍</div>
-                <span class="logo-text">Deepfake<br>Detector</span>
+                <div class="logo-icon">🛡️</div>
+                <span class="logo-text">SynthShield</span>
             </div>
             
             <ul class="sidebar-nav">
@@ -400,12 +400,6 @@
                     <a href="metadata-analyzer.html" class="sidebar-nav-link">
                         <span class="sidebar-nav-icon">📑</span>
                         Metadata Analyzer
-                    </a>
-                </li>
-                <li class="sidebar-nav-item">
-                    <a href="provenance.html" class="sidebar-nav-link">
-                        <span class="sidebar-nav-icon">🛡️</span>
-                        Provenance
                     </a>
                 </li>
                 <li class="sidebar-nav-item">
@@ -484,6 +478,16 @@
                     <div class="stat-value" id="todayAnalyses">0</div>
                     <div class="stat-label">Today's Analyses</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">🧪</div>
+                    <div class="stat-value" id="assessmentSessionCount">0</div>
+                    <div class="stat-label">Assessment Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">🚩</div>
+                    <div class="stat-value" id="assessmentViolationCount">0</div>
+                    <div class="stat-label">Assessment Violations</div>
+                </div>
             </div>
             
             <!-- Quick Upload -->
@@ -548,7 +552,10 @@
                 <div class="recent-activity" style="margin-top: 24px;">
                     <div class="section-header">
                         <h2 class="section-title">System Users & Activity Log</h2>
-                        <button id="export-btn" class="btn btn-sm btn-secondary" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">Export CSV</button>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="candidate-report.html" class="btn btn-sm btn-secondary" style="background: #0f766e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; text-decoration: none;">Candidate Report</a>
+                            <button id="export-btn" class="btn btn-sm btn-secondary" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">Export CSV</button>
+                        </div>
                     </div>
                     <div style="width: 100%; overflow-x: auto;">
                         <table style="width: 100%; border-collapse: collapse; text-align: left;">
@@ -565,6 +572,42 @@
                                 <tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--text-muted);">Loading system activity...</td></tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <div class="recent-activity" style="margin-top: 28px;">
+                    <div class="section-header">
+                        <h2 class="section-title">Assessment Monitoring</h2>
+                    </div>
+                    <div style="width: 100%; overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                            <thead style="border-bottom: 2px solid var(--border); color: var(--text-secondary);">
+                                <tr>
+                                    <th style="padding: 12px">User</th>
+                                    <th style="padding: 12px">Status</th>
+                                    <th style="padding: 12px">Violations</th>
+                                    <th style="padding: 12px">Last Event</th>
+                                    <th style="padding: 12px">Started</th>
+                                    <th style="padding: 12px">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assessment-session-body">
+                                <tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--text-muted);">Loading assessment sessions...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="assessment-detail-panel" class="recent-activity hidden" style="margin-top: 28px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border); border-radius: 16px; padding: 20px;">
+                    <div class="section-header" style="margin-bottom: 12px;">
+                        <h2 class="section-title">Assessment Session Details</h2>
+                        <button id="close-assessment-detail" class="btn btn-sm btn-secondary" style="background: transparent; border: 1px solid var(--border); color: var(--text-primary);">Close</button>
+                    </div>
+
+                    <div id="assessment-risk-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px;"></div>
+                    <div id="assessment-detail-meta" style="display: flex; flex-wrap: wrap; gap: 14px; color: var(--text-secondary); margin-bottom: 14px;"></div>
+                    <div style="width: 100%; overflow-x: auto;">
+                        <ul id="assessment-event-list" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px;"></ul>
                     </div>
                 </div>
             </div>

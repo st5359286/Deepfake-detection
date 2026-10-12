@@ -1,0 +1,17 @@
+{
+  "accuracy": 0.5,
+  "precision_fake": 0.0,
+  "recall_fake": 0.0,
+  "f1_fake": 0.0,
+  "specificity_real": 1.0,
+  "false_positive_rate": 0.0,
+  "true_negative": 4,
+  "false_positive": 0,
+  "false_negative": 4,
+  "true_positive": 0,
+  "sample_count": 8,
+  "roc_auc": 0.5,
+  "threshold": 0.5,
+  "model_path": "C:\\Users\\DELL\\OneDrive\\Desktop\\demo project\\deepfake-detector-backend\\src\\deepfake_model.h5",
+  "dataset_path": "deepfake-detector-backend\\datasets\\test"
+}

@@ -1,4 +1,4 @@
-// Configuration for Deepfake Detector
+// Configuration for SynthShield
 // Uses global config object for all pages.
 const API_URL = "http://localhost:3000";
 

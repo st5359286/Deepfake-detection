@@ -90,7 +90,10 @@
                 <div class="stat-box real"><div class="stat-box-value" id="realCount">0</div><div class="stat-box-label">Authentic</div></div>
                 <div class="stat-box fake"><div class="stat-box-value" id="fakeCount">0</div><div class="stat-box-label">Deepfakes</div></div>
             </div>
-            <div class="results-card">
+        <!-- Explanation and Modifications -->
+        <div id="explanationContainer" class="mt-4 text-lg text-gray-200"></div>
+        <div id="modificationsContainer" class="mt-2 flex flex-wrap gap-2 text-sm text-gray-400"></div>
+        <div class="results-card">
                 <div class="results-header"><h2 class="results-title">Recent Analyses</h2><select class="filter-select" id="filterSelect" onchange="filterResults()"><option value="all">All Results</option><option value="real">Authentic Only</option><option value="fake">Deepfakes Only</option></select></div>
                 <ul class="results-list" id="resultsList">
                     <li class="empty-state"><div class="empty-icon">📋</div><h3 class="empty-title">No results yet</h3><p class="empty-desc">Start analyzing files to see your history here</p></li>

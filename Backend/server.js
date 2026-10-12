@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
@@ -17,6 +18,9 @@ const port = process.env.PORT || 3000;
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
+
+// URL of the Python ML service (make configurable via env)
+const ML_URL = process.env.ML_URL || 'http://127.0.0.1:5000';
 
 // Security Middleware
 app.use(helmet());
@@ -38,6 +42,10 @@ const limiter = rateLimit({
   },
 });
 app.use("/api/", limiter);
+
+// Serve ML-generated results and static assets from Python backend results directory
+const pythonResultsDir = path.resolve(__dirname, '..', 'deepfake-detector-backend', 'src', 'public', 'results');
+app.use('/results', express.static(pythonResultsDir));
 
 // JWT Authentication Middleware
 const authenticateToken = (req, res, next) => {
@@ -155,7 +163,7 @@ app.post("/register", async (req, res) => {
     const mailOptions = {
       from: (process.env.EMAIL_USER || "deepfake-detector@admin.com").trim(),
       to: email,
-      subject: "Verify your Account - Deepfake Detector",
+      subject: "Verify your Account - SynthShield",
       text: `Your Verification Code is: ${otp}\n\nThis code expires in 10 minutes.`,
     };
 
@@ -251,7 +259,7 @@ app.post("/resend-otp", async (req, res) => {
     const mailOptions = {
       from: (process.env.EMAIL_USER || "deepfake-detector@admin.com").trim(),
       to: email,
-      subject: "Resend Verification Code - Deepfake Detector",
+      subject: "Resend Verification Code - SynthShield",
       text: `Your New Verification Code is: ${otp}\n\nThis code expires in 10 minutes.`,
     };
 
@@ -385,6 +393,327 @@ app.get("/api/user-activity/:id", async (req, res) => {
   } catch(e) { res.status(500).json({ message: "Error" }); }
 });
 
+app.get("/api/assessment/sessions", async (req, res) => {
+  const { userId } = req.query;
+
+  try {
+    const sql = userId
+      ? "SELECT * FROM assessment_sessions WHERE user_id = ? ORDER BY started_at DESC"
+      : "SELECT * FROM assessment_sessions ORDER BY started_at DESC LIMIT 20";
+    const params = userId ? [userId] : [];
+    const sessions = await query(sql, params);
+    res.json(sessions);
+  } catch (err) {
+    console.error("Assessment session fetch error:", err);
+    res.status(500).json({ message: "Failed to load assessment sessions." });
+  }
+});
+
+app.post("/api/assessment/session", async (req, res) => {
+  const { userId, candidateName } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required." });
+  }
+
+  try {
+    const result = await run(
+      "INSERT INTO assessment_sessions (user_id, candidate_name, status, started_at, updated_at) VALUES (?, ?, 'active', datetime('now'), datetime('now'))",
+      [userId, candidateName || "Candidate"],
+    );
+
+    res.status(201).json({
+      sessionId: result.lastID,
+      status: "active",
+      message: "Assessment session created.",
+    });
+  } catch (err) {
+    console.error("Assessment session create error:", err);
+    res.status(500).json({ message: "Failed to create assessment session." });
+  }
+});
+
+app.post("/api/assessment/sessions/:id/event", async (req, res) => {
+  const { id } = req.params;
+  const { type, severity = "medium", details = "", payload = {} } = req.body;
+
+  if (!type) {
+    return res.status(400).json({ message: "Event type is required." });
+  }
+
+  try {
+    const sessionExists = await query("SELECT * FROM assessment_sessions WHERE id = ?", [id]);
+    if (sessionExists.length === 0) {
+      return res.status(404).json({ message: "Assessment session not found." });
+    }
+
+    await run(
+      "INSERT INTO assessment_events (session_id, event_type, severity, details, payload, timestamp) VALUES (?, ?, ?, ?, ?, datetime('now'))",
+      [id, type, severity, details, JSON.stringify(payload)],
+    );
+
+    const violationIncrement = ["FULLSCREEN_EXIT", "TAB_SWITCH", "ESCAPE_PRESSED", "NO_FACE", "MULTIPLE_FACES", "FACE_MISMATCH", "WINDOW_BLUR"].includes(type) ? 1 : 0;
+
+    const updatedSession = await query("SELECT violation_count FROM assessment_sessions WHERE id = ?", [id]);
+    const nextCount = (updatedSession[0]?.violation_count || 0) + violationIncrement;
+    const nextStatus = nextCount >= 3 ? "flagged" : "active";
+
+    await run(
+      "UPDATE assessment_sessions SET violation_count = ?, last_event = ?, status = ?, updated_at = datetime('now') WHERE id = ?",
+      [nextCount, type, nextStatus, id],
+    );
+
+    res.json({
+      ok: true,
+      violationCount: nextCount,
+      status: nextStatus,
+      message: "Assessment event recorded.",
+    });
+  } catch (err) {
+    console.error("Assessment event error:", err);
+    res.status(500).json({ message: "Failed to save assessment event." });
+  }
+});
+
+app.post("/api/assessment/sessions/:id/end", async (req, res) => {
+  const { id } = req.params;
+  const { status = "completed" } = req.body;
+
+  try {
+    await run(
+      "UPDATE assessment_sessions SET status = ?, ended_at = datetime('now'), updated_at = datetime('now') WHERE id = ?",
+      [status, id],
+    );
+    res.json({ ok: true, message: "Assessment session closed." });
+  } catch (err) {
+    console.error("Assessment end error:", err);
+    res.status(500).json({ message: "Failed to close assessment session." });
+  }
+});
+
+app.get("/api/assessment/summary/:userId", async (req, res) => {
+  try {
+    const sessions = await query(
+      "SELECT status, violation_count FROM assessment_sessions WHERE user_id = ? ORDER BY started_at DESC",
+      [req.params.userId],
+    );
+
+    res.json({
+      totalSessions: sessions.length,
+      activeSessions: sessions.filter((s) => s.status === "active").length,
+      flaggedSessions: sessions.filter((s) => s.status === "flagged").length,
+      totalViolations: sessions.reduce((sum, s) => sum + (Number(s.violation_count) || 0), 0),
+    });
+  } catch (err) {
+    console.error("Assessment summary error:", err);
+    res.status(500).json({ message: "Failed to summarize assessment sessions." });
+  }
+});
+
+app.get("/api/assessment/events/:sessionId", async (req, res) => {
+  try {
+    const events = await query(
+      "SELECT * FROM assessment_events WHERE session_id = ? ORDER BY timestamp DESC LIMIT 20",
+      [req.params.sessionId],
+    );
+    res.json(events);
+  } catch (err) {
+    console.error("Assessment events fetch error:", err);
+    res.status(500).json({ message: "Failed to load assessment events." });
+  }
+});
+
+app.get("/api/assessment/session/:sessionId/summary", async (req, res) => {
+  try {
+    const session = await query(
+      "SELECT * FROM assessment_sessions WHERE id = ?",
+      [req.params.sessionId],
+    );
+
+    if (!session.length) {
+      return res.status(404).json({ message: "Assessment session not found." });
+    }
+
+    const events = await query(
+      "SELECT event_type, severity, details, timestamp FROM assessment_events WHERE session_id = ? ORDER BY timestamp DESC",
+      [req.params.sessionId],
+    );
+
+    const eventCounts = {};
+    let highSeverity = 0;
+    let mediumSeverity = 0;
+    let lowSeverity = 0;
+
+    for (const event of events) {
+      const type = event.event_type || "UNKNOWN";
+      eventCounts[type] = (eventCounts[type] || 0) + 1;
+      if (event.severity === "high") highSeverity += 1;
+      else if (event.severity === "medium") mediumSeverity += 1;
+      else lowSeverity += 1;
+    }
+
+    const violationWeight = Number(session[0].violation_count || 0) * 18;
+    const highWeight = highSeverity * 20;
+    const mediumWeight = mediumSeverity * 10;
+    const lowWeight = lowSeverity * 4;
+    const eventWeight = events.length * 6;
+    const riskScore = Math.min(100, violationWeight + highWeight + mediumWeight + lowWeight + eventWeight);
+
+    let riskLevel = "Low";
+    let recommendation = "Candidate appears compliant and stable.";
+
+    if (riskScore >= 75) {
+      riskLevel = "High";
+      recommendation = "Escalate for manual review and consider terminating the assessment.";
+    } else if (riskScore >= 40) {
+      riskLevel = "Medium";
+      recommendation = "Monitor closely and require a manual review before final acceptance.";
+    }
+
+    res.json({
+      sessionId: session[0].id,
+      candidateName: session[0].candidate_name,
+      status: session[0].status,
+      violationCount: Number(session[0].violation_count || 0),
+      eventCount: events.length,
+      riskScore: Math.round(riskScore),
+      riskLevel,
+      recommendation,
+      eventCounts,
+      severityBreakdown: {
+        high: highSeverity,
+        medium: mediumSeverity,
+        low: lowSeverity,
+      },
+      startedAt: session[0].started_at,
+      endedAt: session[0].ended_at,
+      lastEvent: session[0].last_event,
+    });
+  } catch (err) {
+    console.error("Assessment summary error:", err);
+    res.status(500).json({ message: "Failed to compute assessment summary." });
+  }
+});
+
+app.get("/api/admin/assessment-overview", async (req, res) => {
+  try {
+    const rows = await query(`
+      SELECT
+        s.id,
+        s.user_id,
+        u.username,
+        s.candidate_name,
+        s.status,
+        s.violation_count,
+        s.last_event,
+        s.started_at,
+        s.ended_at,
+        s.updated_at,
+        (SELECT COUNT(*) FROM assessment_events WHERE session_id = s.id) AS event_count
+      FROM assessment_sessions s
+      LEFT JOIN users u ON u.id = s.user_id
+      ORDER BY s.updated_at DESC
+      LIMIT 25
+    `);
+
+    res.json(rows.map((session) => ({
+      ...session,
+      severity: session.violation_count >= 3 ? "high" : session.violation_count > 0 ? "medium" : "low",
+    })));
+  } catch (err) {
+    console.error("Assessment overview fetch error:", err);
+    res.status(500).json({ message: "Failed to load assessment overview." });
+  }
+});
+
+app.get("/api/admin/assessment-report", async (req, res) => {
+  try {
+    const rows = await query(`
+      SELECT s.id, s.user_id, u.username, s.candidate_name, s.status, s.violation_count, s.last_event, s.started_at, s.ended_at,
+             (SELECT COUNT(*) FROM assessment_events WHERE session_id = s.id) AS event_count
+      FROM assessment_sessions s
+      LEFT JOIN users u ON u.id = s.user_id
+      ORDER BY s.updated_at DESC
+    `);
+
+    const result = await Promise.all(rows.map(async (session) => {
+      const summaryResponse = await fetch(`${process.env.ML_URL || "http://127.0.0.1:5000"}/status`);
+      const summary = { riskScore: Math.min(100, (Number(session.violation_count || 0) * 18) + (Number(session.event_count || 0) * 6)), riskLevel: "Low" };
+
+      if (summary.riskScore >= 75) summary.riskLevel = "High";
+      else if (summary.riskScore >= 40) summary.riskLevel = "Medium";
+
+      return {
+        ...session,
+        riskScore: summary.riskScore,
+        riskLevel: summary.riskLevel,
+        recommendation:
+          summary.riskLevel === "High"
+            ? "Escalate and require manual review"
+            : summary.riskLevel === "Medium"
+              ? "Review closely before acceptance"
+              : "Candidate appears compliant",
+      };
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("Assessment report fetch error:", err);
+    res.status(500).json({ message: "Failed to load assessment report." });
+  }
+});
+
+app.get("/api/admin/assessment-report/export", async (req, res) => {
+  try {
+    const rows = await query(`
+      SELECT s.id, u.username, s.candidate_name, s.status, s.violation_count, s.last_event, s.started_at, s.ended_at,
+             (SELECT COUNT(*) FROM assessment_events WHERE session_id = s.id) AS event_count
+      FROM assessment_sessions s
+      LEFT JOIN users u ON u.id = s.user_id
+      ORDER BY s.updated_at DESC
+    `);
+
+    const csvRows = rows.map((row) => {
+      const riskScore = Math.min(100, (Number(row.violation_count || 0) * 18) + (Number(row.event_count || 0) * 6));
+      const riskLevel = riskScore >= 75 ? "High" : riskScore >= 40 ? "Medium" : "Low";
+      return [
+        row.id,
+        row.username || "Unknown",
+        row.candidate_name || "Unknown",
+        row.status || "active",
+        row.violation_count || 0,
+        row.event_count || 0,
+        riskScore,
+        riskLevel,
+        row.last_event || "No events",
+        row.started_at || "",
+        row.ended_at || "",
+      ].map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",");
+    });
+
+    const header = [
+      "Session ID",
+      "User",
+      "Candidate",
+      "Status",
+      "Violations",
+      "Event Count",
+      "Risk Score",
+      "Risk Level",
+      "Last Event",
+      "Started At",
+      "Ended At",
+    ].join(",");
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", 'attachment; filename="candidate-risk-report.csv"');
+    res.send([header, ...csvRows].join("\n"));
+  } catch (err) {
+    console.error("Assessment report export error:", err);
+    res.status(500).json({ message: "Failed to export candidate risk report." });
+  }
+});
+
 // Admin Export Endpoint
 app.get("/api/admin/export-activity", async (req, res) => {
   try {
@@ -456,7 +785,7 @@ app.post("/forgot-password", async (req, res) => {
     const mailOptions = {
       from: (process.env.EMAIL_USER || "deepfake-detector@admin.com").trim(),
       to: user.email,
-      subject: "Password Reset Request - Deepfake Detector",
+      subject: "Password Reset Request - SynthShield",
       text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${resetURL}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.`,
     };
 
@@ -559,17 +888,19 @@ app.post("/api/analyze", upload.single("media"), async (req, res) => {
 
   try {
     console.log(`[DEBUG] Proxying file to Python ML Engine...`);
+    console.log(`[DEBUG] /api/analyze received file: ${req.file.originalname}, mimetype=${req.file.mimetype}, size=${req.file.size}`);
     
     // Create form data to forward to the Python backend
     const formData = new FormData();
     formData.append("media", req.file.buffer, {
       filename: req.file.originalname || "upload.tmp",
       contentType: req.file.mimetype,
+      knownLength: req.file.size,
     });
     
-    // Forward the file to the python app.py running on port 5000
+    // Forward the file to the Python ML service (deepfake-detector-backend) running on port 5000
     const pythonResponse = await axios.post(
-      "http://127.0.0.1:5000/predict",
+      ML_URL + '/predict',
       formData,
       {
         headers: {
@@ -580,9 +911,54 @@ app.post("/api/analyze", upload.single("media"), async (req, res) => {
       }
     );
     
-    const mlData = pythonResponse.data;
-    console.log(`[DEBUG] Python responded with confidence: ${mlData.confidence}`);
+    let mlData = pythonResponse.data;
 
+    // If the Python response indicates the ML path was not used (mock fallback),
+    // try again by streaming the file from disk — some multipart encoders behave
+    // differently for Buffers and streams and that can affect how the Flask app
+    // or OpenCV perceives the upload.
+    try {
+      if ((!mlData.used_ml || mlData.inference_source === 'mock') && req.file && req.file.buffer) {
+        console.log('[DEBUG] ML fallback detected from Python, retrying with streamed file transfer');
+        const fs = require('fs');
+        const os = require('os');
+        const tmpPath = require('path').join(os.tmpdir(), `upload_retry_${Date.now()}_${Math.random().toString(36).slice(2,8)}`);
+        fs.writeFileSync(tmpPath, req.file.buffer);
+        const retryForm = new FormData();
+        retryForm.append('media', fs.createReadStream(tmpPath), {
+          filename: req.file.originalname || 'upload.tmp',
+          contentType: req.file.mimetype || 'application/octet-stream',
+        });
+        const retryResp = await axios.post(
+          ML_URL + '/predict',
+          retryForm,
+          {
+            headers: { ...retryForm.getHeaders() },
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
+          }
+        );
+        if (retryResp && retryResp.data) {
+          mlData = retryResp.data;
+          console.log('[DEBUG] Retry response received, used_ml=', mlData.used_ml, 'inference_source=', mlData.inference_source);
+        }
+        try { fs.unlinkSync(tmpPath); } catch (e) { /* ignore */ }
+      }
+    } catch (retryErr) {
+      console.error('[DEBUG] Retry with streamed file failed:', retryErr && retryErr.message ? retryErr.message : retryErr);
+    }
+
+    // Normalize heatmap URLs to absolute URLs served by this Node backend
+    const toAbsolute = (url) => {
+      if (!url) return null;
+      if (url.startsWith('http')) return url;
+      if (url.startsWith('/')) return `${req.protocol}://${req.get('host')}${url}`;
+      return `${req.protocol}://${req.get('host')}/${url}`;
+    };
+    mlData.heatmap_url = toAbsolute(mlData.heatmap_url);
+    mlData.frame_heatmap_urls = (mlData.frame_heatmap_urls || []).map(toAbsolute);
+    console.log(`[DEBUG] Python responded with confidence: ${mlData.confidence} (used_ml=${mlData.used_ml}, source=${mlData.inference_source})`);
+ 
     // Parse the data back into the structure the frontend expects
     const isVideo = req.file.mimetype.startsWith("video/");
     const isAudio = req.file.mimetype.startsWith("audio/");
@@ -594,7 +970,7 @@ app.post("/api/analyze", upload.single("media"), async (req, res) => {
       confidence: mlData.confidence,
       file_hash: mlData.file_hash,
       type: isVideo ? "video" : isAudio ? "audio" : "image",
-      feature_scores: {
+      feature_scores: mlData.feature_scores || {
         "Visual Artifacts": mlData.is_deepfake ? Math.floor(Math.random() * 20) + 70 : 10,
         "Audio Consistency": mlData.audio_confidence || 0,
         "Metadata Integrity": mlData.confidence
@@ -608,7 +984,7 @@ app.post("/api/analyze", upload.single("media"), async (req, res) => {
         consistency_timeline: [],
         feature_scores_chart: {},
         confidence_breakdown: {
-          visual_evidence: mlData.confidence,
+          visual_evidence: (mlData.feature_scores && mlData.feature_scores['Visual Artifacts']) || mlData.confidence,
           audio_evidence: mlData.audio_confidence || 80,
           metadata_evidence: 95,
           temporal_evidence: isVideo ? mlData.confidence : 0,
@@ -627,12 +1003,16 @@ app.post("/api/analyze", upload.single("media"), async (req, res) => {
       visual_analysis: [
         {
           title: "AI Analysis",
-          description: mlData.prediction,
+          description: mlData.risk_description || "Model assessment available.",
           level: mlData.risk_level || "Medium",
         }
       ],
       metadata_analysis: [],
       forensics: [],
+      frame_scores: mlData.frame_scores || [],
+      frame_heatmap_urls: mlData.frame_heatmap_urls || [],
+      inference_source: mlData.inference_source || 'unknown',
+      model_info: mlData.model_info || null,
     };
 
     const { userId } = req.body;
@@ -1058,7 +1438,7 @@ app.get("/api/dashboard", authenticateToken, async (req, res) => {
   }
 });
 
-// --- Metadata & Provenance Endpoints ---
+// --- Metadata Endpoints ---
 
 app.post("/api/analyze-metadata", upload.single("media"), async (req, res) => {
   if (!req.file) {
@@ -1143,38 +1523,6 @@ app.post("/api/analyze-metadata", upload.single("media"), async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Failed to parse metadata" });
   }
-});
-
-app.post("/api/analyze-provenance", upload.single("media"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No media file found" });
-  }
-  
-  // Lightweight heuristic search for C2PA atoms/markers in the raw buffer
-  const bufferString = req.file.buffer.toString("ascii", 0, Math.min(req.file.buffer.length, 10000));
-  const hasC2PA = bufferString.includes("c2pa") || bufferString.includes("JUMBF");
-  
-  // Check generative tags
-  const isGenerative = bufferString.includes("Midjourney") || bufferString.includes("Stable Diffusion") || bufferString.includes("DALL-E") || bufferString.includes("SDXL") || bufferString.includes("Photoshop");
-
-  // Attempt to scrape camera make/model for dynamic certs
-  let detectedCamera = "Generic-Sensor";
-  if (req.file.mimetype.startsWith("image/")) {
-      try {
-          const parser = exifParser.create(req.file.buffer);
-          const result = parser.parse();
-          if (result && result.tags && result.tags.Make) {
-              detectedCamera = `${result.tags.Make}-${result.tags.Model || 'Digital'}`.replace(/\s+/g, '-').toUpperCase();
-          }
-      } catch (e) {}
-  }
-
-  res.json({
-    hasC2PA: hasC2PA,
-    isGenerative: isGenerative,
-    fileName: req.file.originalname,
-    cameraSignature: detectedCamera
-  });
 });
 
 app.listen(port, () => {

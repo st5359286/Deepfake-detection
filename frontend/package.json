@@ -1,5 +1,5 @@
 {
-  "name": "project13",
+  "name": "synthshield-frontend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
     "dev": "vite",
-    "build": "vite build && cp -r *.html dist/ && cp -r *.js dist/"
+    "build": "vite build && node -e \"const fs=require('fs'); const path=require('path'); const root=process.cwd(); const files=['index.html','live-detection.html','app.js','config.js','main.js','dashboard.js','document.js','forgot-password.js','inject-components.js','login.js','metadata-analyzer.js','register.js','result.js','reset-password.js','verify-otp.js','live.js','code-scanner.js','scanner_with_viz.html','candidate-report.html','candidate-report.js']; for (const file of files) { const src=path.join(root,file); const dest=path.join(root,'dist',file); if (fs.existsSync(src)) { fs.copyFileSync(src,dest); } }\""
   },
   "keywords": [],
   "author": "",

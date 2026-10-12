@@ -147,6 +147,155 @@ async function fetchUserActivity(userId) {
   }
 }
 
+async function fetchAssessmentSummary(userId) {
+  try {
+    const response = await fetch(`${config.API_URL}/api/assessment/summary/${userId}`);
+    if (!response.ok) throw new Error("Failed to fetch assessment summary");
+
+    const summary = await response.json();
+    const sessionCount = document.getElementById("assessmentSessionCount");
+    const violationCount = document.getElementById("assessmentViolationCount");
+
+    if (sessionCount) sessionCount.textContent = summary.totalSessions || 0;
+    if (violationCount) violationCount.textContent = summary.totalViolations || 0;
+  } catch (error) {
+    console.error("Error fetching assessment summary:", error);
+  }
+}
+
+let assessmentOverviewSessions = [];
+
+async function fetchAssessmentOverview() {
+  try {
+    const response = await fetch(`${config.API_URL}/api/admin/assessment-overview`);
+    if (!response.ok) throw new Error("Failed to fetch assessment overview");
+
+    const sessions = await response.json();
+    assessmentOverviewSessions = sessions;
+    const body = document.getElementById("assessment-session-body");
+    if (!body) return;
+
+    if (!sessions.length) {
+      body.innerHTML = '<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--text-muted);">No assessment sessions recorded yet.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = sessions
+      .map((session) => {
+        const statusColor = session.status === "flagged" ? "#f87171" : session.status === "active" ? "#22c55e" : "#94a3b8";
+        return `
+          <tr>
+            <td style="padding: 12px; font-weight: 600;">${session.username || "Unknown"}</td>
+            <td style="padding: 12px; color: ${statusColor}; text-transform: capitalize;">${session.status || "active"}</td>
+            <td style="padding: 12px;">${session.violation_count || 0}</td>
+            <td style="padding: 12px;">${session.last_event || "No violations"}</td>
+            <td style="padding: 12px;">${session.started_at ? new Date(session.started_at).toLocaleString() : "—"}</td>
+            <td style="padding: 12px;">
+              <button class="assessment-detail-trigger btn btn-sm btn-secondary" data-session-id="${session.id}" style="background: transparent; border: 1px solid var(--border); color: var(--text-primary);">View</button>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    document.querySelectorAll(".assessment-detail-trigger").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const sessionId = Number(button.dataset.sessionId);
+        await openAssessmentDetail(sessionId);
+      });
+    });
+  } catch (error) {
+    console.error("Error fetching assessment overview:", error);
+    const body = document.getElementById("assessment-session-body");
+    if (body) {
+      body.innerHTML = '<tr><td colspan="6" style="padding: 24px; text-align: center; color: #f87171;">Could not load assessment monitoring data.</td></tr>';
+    }
+  }
+}
+
+async function openAssessmentDetail(sessionId) {
+  const panel = document.getElementById("assessment-detail-panel");
+  const meta = document.getElementById("assessment-detail-meta");
+  const list = document.getElementById("assessment-event-list");
+  const riskSummary = document.getElementById("assessment-risk-summary");
+
+  if (!panel || !meta || !list || !riskSummary) return;
+
+  const session = assessmentOverviewSessions.find((item) => Number(item.id) === Number(sessionId));
+  if (!session) return;
+
+  try {
+    const response = await fetch(`${config.API_URL}/api/assessment/session/${sessionId}/summary`);
+    if (!response.ok) throw new Error("Failed to load session summary");
+
+    const summary = await response.json();
+    const riskColor = summary.riskLevel === "High" ? "#f87171" : summary.riskLevel === "Medium" ? "#fbbf24" : "#34d399";
+
+    riskSummary.innerHTML = `
+      <div style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(15, 23, 42, 0.8);">
+        <div style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;">Risk Score</div>
+        <div style="font-size: 2rem; font-weight: 800; color: ${riskColor};">${summary.riskScore}</div>
+      </div>
+      <div style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(15, 23, 42, 0.8);">
+        <div style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;">Risk Level</div>
+        <div style="font-size: 1.2rem; font-weight: 700; color: ${riskColor};">${summary.riskLevel}</div>
+      </div>
+      <div style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(15, 23, 42, 0.8);">
+        <div style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;">Violations</div>
+        <div style="font-size: 1.3rem; font-weight: 700;">${summary.violationCount}</div>
+      </div>
+      <div style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(15, 23, 42, 0.8);">
+        <div style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;">Events</div>
+        <div style="font-size: 1.3rem; font-weight: 700;">${summary.eventCount}</div>
+      </div>
+    `;
+
+    meta.innerHTML = `
+      <span><strong>User:</strong> ${session.username || "Unknown"}</span>
+      <span><strong>Candidate:</strong> ${session.candidate_name || summary.candidateName || "—"}</span>
+      <span><strong>Status:</strong> ${summary.status || "active"}</span>
+      <span><strong>Started:</strong> ${summary.startedAt ? new Date(summary.startedAt).toLocaleString() : "—"}</span>
+      <span><strong>Recommendation:</strong> ${summary.recommendation}</span>
+    `;
+
+    const eventResponse = await fetch(`${config.API_URL}/api/assessment/events/${sessionId}`);
+    if (!eventResponse.ok) throw new Error("Failed to load events");
+    const events = await eventResponse.json();
+
+    if (!events.length) {
+      list.innerHTML = '<li style="padding: 16px; border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted);">No events recorded for this assessment session yet.</li>';
+      panel.classList.remove("hidden");
+      return;
+    }
+
+    list.innerHTML = events
+      .map((event) => {
+        const payload = (() => {
+          try { return JSON.parse(event.payload || "{}"); } catch { return {}; }
+        })();
+        const details = event.details || "No additional detail";
+        const extra = payload && Object.keys(payload).length ? ` <span style="color: var(--text-secondary);">(${JSON.stringify(payload)})</span>` : "";
+        return `
+          <li style="padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: rgba(15, 118, 110, 0.08);">
+            <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
+              <strong>${event.event_type}</strong>
+              <span style="color: ${event.severity === "high" ? "#f87171" : event.severity === "medium" ? "#fbbf24" : "#34d399"}; text-transform: capitalize;">${event.severity}</span>
+            </div>
+            <div style="color: var(--text-secondary);">${details}${extra}</div>
+            <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 6px;">${new Date(event.timestamp).toLocaleString()}</div>
+          </li>
+        `;
+      })
+      .join("");
+
+    panel.classList.remove("hidden");
+  } catch (error) {
+    console.error("Error opening assessment detail:", error);
+    list.innerHTML = '<li style="padding: 16px; border: 1px solid var(--border); border-radius: 10px; color: #f87171;">Unable to load the assessment event timeline.</li>';
+    panel.classList.remove("hidden");
+  }
+}
+
 // --- Main Logic ---
 (async () => {
   const userString = localStorage.getItem("user");
@@ -174,9 +323,18 @@ async function fetchUserActivity(userId) {
 
       if (user.role === "admin") {
         await fetchAdminData();
-        await fetchAdminStats(); // New stats call
+        await fetchAdminStats();
+        await fetchAssessmentOverview();
         const exportBtn = document.getElementById("export-btn");
         if (exportBtn) exportBtn.addEventListener("click", handleExport);
+
+        const closeAssessmentDetailBtn = document.getElementById("close-assessment-detail");
+        if (closeAssessmentDetailBtn) {
+          closeAssessmentDetailBtn.addEventListener("click", () => {
+            const panel = document.getElementById("assessment-detail-panel");
+            if (panel) panel.classList.add("hidden");
+          });
+        }
       } else {
         // Populate user profile card for non-admins
         document.getElementById("user-id").textContent = data.user.id;
@@ -185,6 +343,7 @@ async function fetchUserActivity(userId) {
         document.getElementById("user-email").textContent = data.user.email;
         document.getElementById("user-role").textContent = data.user.role;
         await fetchUserActivity(user.id);
+        await fetchAssessmentSummary(user.id);
       }
     } else {
       // Check for explicit unauthorized status (401)

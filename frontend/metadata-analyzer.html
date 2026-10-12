@@ -3,67 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metadata Analyzer - Deepfake Detector</title>
+    <title>Metadata Analyzer - SynthShield</title>
     <link rel="stylesheet" href="modern.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #4338CA;
+            --primary-light: #818CF8;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg-main: #F9FAFB;
+            --bg-card: #FFFFFF;
+            --bg-input: #F3F4F6;
+            --text-main: #111827;
+            --text-secondary: #6B7280;
+            --text-muted: #9CA3AF;
+            --border: #E5E7EB;
+        }
+
         .dashboard-layout { display: flex; min-height: 100vh; }
         .sidebar { width: 260px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
         .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 0 12px; margin-bottom: 32px; }
-        .sidebar-logo .logo-icon { width: 40px; height: 40px; }
+        .sidebar-logo .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+        }
         .sidebar-logo .logo-text { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
         .sidebar-nav { list-style: none; }
         .sidebar-nav-item { margin-bottom: 4px; }
-        .sidebar-nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); border-radius: var(--radius-md); font-weight: 500; transition: all 0.2s; text-decoration: none; }
-        .sidebar-nav-link:hover { background: var(--bg-main); color: var(--text-main); }
-        .sidebar-nav-link.active { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .sidebar-nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-secondary); border-radius: 10px; font-weight: 500; transition: all 0.2s; text-decoration: none; }
+        .sidebar-nav-link:hover { background: rgba(79, 70, 229, 0.08); color: var(--text-main); }
+        .sidebar-nav-link.active { background: rgba(79, 70, 229, 0.15); color: var(--primary); }
         .sidebar-divider { height: 1px; background: var(--border); margin: 24px 0; }
         .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); }
-        .user-info { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: var(--radius-md); margin-bottom: 12px; }
+        .user-info { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-main); border-radius: 12px; margin-bottom: 12px; }
         .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
         .user-name { font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
         .user-email { font-size: 0.8rem; color: var(--text-muted); }
-        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: none; border: 1px solid var(--border); border-radius: 12px; color: var(--text-secondary); cursor: pointer; font-weight: 500; transition: all 0.2s; }
         .logout-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
         .main-content { flex: 1; margin-left: 260px; padding: 32px; background: var(--bg-main); }
         .page-header { margin-bottom: 32px; }
         .page-title { font-size: 1.75rem; margin-bottom: 8px; font-weight: 700; color: var(--text-main); }
         .page-subtitle { color: var(--text-secondary); }
-        
-        .upload-section { background: var(--bg-card); border-radius: var(--radius-lg); padding: 40px; text-align: center; border: 2px dashed var(--border); margin-bottom: 32px; transition: all 0.2s; cursor: pointer; }
+
+        .upload-section { background: var(--bg-card); border-radius: 18px; padding: 40px; text-align: center; border: 2px dashed var(--border); margin-bottom: 32px; transition: all 0.2s; cursor: pointer; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04); }
         .upload-section:hover { border-color: var(--primary); background: rgba(79, 70, 229, 0.02); }
         .upload-icon { font-size: 3rem; margin-bottom: 16px; color: var(--primary); }
-        .btn-upload { background: var(--primary); color: white; padding: 12px 24px; border-radius: var(--radius-md); border: none; font-weight: 600; cursor: pointer; display: inline-block; margin-top: 16px; transition: background 0.2s; }
-        .btn-upload:hover { background: var(--primary-dark); }
-        
-        .results-container { display: none; background: var(--bg-card); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .btn-upload { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; display: inline-block; margin-top: 16px; transition: all 0.2s; box-shadow: 0 8px 18px rgba(79, 70, 229, 0.18); }
+        .btn-upload:hover { transform: translateY(-1px); }
+
+        .results-container { display: none; background: var(--bg-card); border-radius: 18px; padding: 32px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04); border: 1px solid var(--border); }
         .results-container.show { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .metadata-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-top: 24px; }
-        .metadata-card { background: #0F172A; color: #E2E8F0; border-radius: 12px; padding: 24px; border: 1px solid #1E293B; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
-        .metadata-card::before { content:''; position: absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, #4F46E5, #10B981); }
+
+        .metadata-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 24px; }
+        .metadata-card { background: #0F172A; color: #E2E8F0; border-radius: 14px; padding: 24px; border: 1px solid #1E293B; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.10); position: relative; overflow: hidden; }
+        .metadata-card::before { content:''; position: absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
         .meta-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; font-weight: 700; color: #F8FAFC; font-size: 1.15rem; border-bottom: 1px solid #1E293B; padding-bottom: 12px; }
         .meta-list { list-style: none; padding: 0; margin: 0; }
         .meta-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); font-family: 'Courier New', Courier, monospace; }
         .meta-item:last-child { border-bottom: none; padding-bottom: 0; }
         .meta-key { color: #94A3B8; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 12px; }
         .meta-val { font-weight: 600; color: #38BDF8; font-size: 0.9rem; max-width: 60%; word-break: break-all; text-align: right; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
-        
-        .alert-box { padding: 20px; border-radius: 12px; margin-top: 24px; display: flex; align-items: flex-start; gap: 16px; border-left: 4px solid transparent; }
-        .alert-box.danger { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: #FECACA; box-shadow: 0 0 20px rgba(239,68,68,0.1); }
-        .alert-box.success { background: rgba(16, 185, 129, 0.1); border-color: var(--secondary); color: #A7F3D0; box-shadow: 0 0 20px rgba(16,185,129,0.1); }
-        #alertTitle { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
-        #alertDesc { font-size: 0.95rem; line-height: 1.6; opacity: 0.9; }
+
+        .alert-box { padding: 20px; border-radius: 14px; margin-top: 24px; display: flex; align-items: flex-start; gap: 16px; border-left: 4px solid transparent; }
+        .alert-box.danger { background: rgba(239, 68, 68, 0.08); border-color: var(--danger); color: #7F1D1D; }
+        .alert-box.success { background: rgba(16, 185, 129, 0.08); border-color: var(--secondary); color: #064E3B; }
+        #alertTitle { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; }
+        #alertDesc { font-size: 0.95rem; line-height: 1.6; color: inherit; }
 
         #fileInput { display: none; }
-        .analyzing-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: none; align-items: center; justify-content: center; z-index: 999; flex-direction: column; color: #38BDF8; backdrop-filter: blur(8px); }
+        .analyzing-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.82); display: none; align-items: center; justify-content: center; z-index: 999; flex-direction: column; color: #38BDF8; backdrop-filter: blur(8px); }
         .cyber-spinner { width: 80px; height: 80px; position: relative; margin-bottom: 24px; }
         .cyber-spinner::before, .cyber-spinner::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 4px solid transparent; }
         .cyber-spinner::before { border-top-color: #38BDF8; border-bottom-color: #38BDF8; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px #38BDF8; }
         .cyber-spinner::after { border-left-color: #10B981; border-right-color: #10B981; animation: spin 1s linear infinite reverse; inset: 10px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .hex-dump { margin-top: 20px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #10B981; text-align: left; opacity: 0.7; width: 340px; height: 120px; overflow: hidden; letter-spacing: 2px; }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 16px; }
+        }
     </style>
 </head>
 <body>
@@ -77,8 +109,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <div class="logo-icon">🔍</div>
-                <span class="logo-text">Deepfake<br>Detector</span>
+                <div class="logo-icon">🛡️</div>
+                <span class="logo-text">SynthShield</span>
             </div>
             
             <ul class="sidebar-nav">
@@ -86,7 +118,6 @@
                 <li class="sidebar-nav-item"><a href="scanner_with_viz.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">🔍</span>Scanner</a></li>
                 <li class="sidebar-nav-item"><a href="code-scanner.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📱</span>Code Scanner</a></li>
                 <li class="sidebar-nav-item"><a href="metadata-analyzer.html" class="sidebar-nav-link active"><span class="sidebar-nav-icon">📑</span>Metadata Analyzer</a></li>
-                <li class="sidebar-nav-item"><a href="provenance.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">🛡️</span>Provenance</a></li>
                 <li class="sidebar-nav-item"><a href="live-detection.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📹</span>Live Detection</a></li>
                 <li class="sidebar-nav-item"><a href="result.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📋</span>History</a></li>
             </ul>
@@ -118,10 +149,10 @@
             
             <div class="upload-section" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">📑</div>
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">Upload Media for Metadata Extraction</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Supports JPG, PNG, MP4, and WAV formats</p>
+                <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 8px;">Upload media for metadata extraction</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Supports JPG, PNG, MP4, and WAV files for origin and tampering review.</p>
                 <input type="file" id="fileInput" accept="image/*,video/*,audio/*" multiple>
-                <button class="btn-upload">Select File</button>
+                <button class="btn-upload" type="button">Select file</button>
             </div>
             
             <div id="batchResultsWrapper" style="display: flex; flex-direction: column; gap: 40px; margin-top: 32px;"></div>
@@ -195,19 +226,19 @@
                 
                 const resultHtml = `
                 <div class="results-container show" style="margin-bottom: 0;">
-                    <h2 style="font-size: 1.3rem; font-weight: 700; border-bottom: 1px solid #1E293B; padding-bottom: 12px; margin-bottom: 24px; color: #F8FAFC;">Results: ${data.device.name}</h2>
+                    <h2 style="font-size: 1.35rem; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 24px; color: var(--text-main);">Results: ${data.device.name}</h2>
                     
                     <div class="alert-box ${isFake ? 'danger' : 'success'}">
                         <span style="font-size: 1.5rem;">${isFake ? '⚠️' : '✅'}</span>
                         <div>
-                            <h3 id="alertTitle">${isFake ? 'Metadata Anomalies Detected' : 'Pristine Metadata'}</h3>
-                            <p id="alertDesc">${isFake ? 'Significant anomalies found in the metadata headers. Traces of professional photo/video editing software (Adobe, FFmpeg) were identified.' : "The file's internal signatures explicitly match original camera hardware. No trace of post-processing tools detected."}</p>
+                            <h3 id="alertTitle">${isFake ? 'Metadata anomalies detected' : 'Pristine metadata'}</h3>
+                            <p id="alertDesc">${isFake ? 'Significant irregularities were found in the metadata headers. Traces of professional photo or video editing software were identified.' : "The file's internal signatures align with original camera hardware, and no material post-processing traces were detected."}</p>
                         </div>
                     </div>
 
                     <div class="metadata-grid">
                         <div class="metadata-card">
-                            <div class="meta-header"><span>📷</span> File & Device Info</div>
+                            <div class="meta-header"><span>📹</span> File & Device Info</div>
                             <ul class="meta-list">
                                 <li class="meta-item"><span class="meta-key">File Name</span><span class="meta-val">${data.device.name}</span></li>
                                 <li class="meta-item"><span class="meta-key">Size</span><span class="meta-val">${data.device.size}</span></li>
@@ -232,7 +263,7 @@
                         </div>
                         
                         <div class="metadata-card">
-                            <div class="meta-header"><span>🧬</span> Hash Integrity</div>
+                            <div class="meta-header"><span>🔒</span> Hash Integrity</div>
                             <ul class="meta-list">
                                 <li class="meta-item"><span class="meta-key">Cryptographic Base</span><span class="meta-val">0x${data.hash.md5.substring(0,8)}</span></li>
                                 <li class="meta-item"><span class="meta-key">Perceptual Hash</span><span class="meta-val">${data.hash.perceptual}</span></li>
@@ -244,7 +275,7 @@
 
                     ${data.raw_exif ? `
                     <div class="metadata-card" style="margin-top: 24px;">
-                        <div class="meta-header"><span>🗜️</span> Raw EXIF Payload</div>
+                        <div class="meta-header"><span>🧬</span> Raw EXIF Payload</div>
                         <div style="max-height: 250px; overflow-y: auto; background: #0F172A; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; color: #38BDF8;">
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tbody>

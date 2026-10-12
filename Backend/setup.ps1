@@ -25,8 +25,8 @@ if ($py -notmatch "3\.11") {
 Write-Host "Updating pip/setuptools/wheel..."
 python -m pip install --upgrade pip setuptools wheel
 
-Write-Host "Installing Python backend dependencies..."
-python -m pip install --upgrade -r requirements.txt
+Write-Host "Installing Python ML backend dependencies from deepfake-detector-backend..."
+python -m pip install --upgrade -r ..\deepfake-detector-backend\requirements.txt
 if ($LASTEXITCODE -ne 0) {
   Write-Error "Python deps install failed. If NumPy fails for Python 3.14, switch to Python 3.11 and rerun."
   exit 1

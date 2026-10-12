@@ -1,0 +1,21 @@
+{
+  "visual_model": {
+    "trained": true,
+    "source": "fine_tuned",
+    "accuracy": 1.0,
+    "val_loss": 9.419525667908601e-06,
+    "dataset": "synthetic_augmented",
+    "epochs_completed": 10,
+    "training_date": "2026-10-01T02:30:23.097188",
+    "architecture": "MobileNetV2 + Dense(128) + Sigmoid",
+    "learning_rate": 0.0001,
+    "batch_size": 16
+  },
+  "audio_model": {
+    "exists": true,
+    "path": "C:\\Users\\DELL\\OneDrive\\Desktop\\demo project\\deepfake-detector-backend\\src\\audio_model.h5",
+    "size_mb": 0.14,
+    "trained": false,
+    "source": "untrained_architecture"
+  }
+}

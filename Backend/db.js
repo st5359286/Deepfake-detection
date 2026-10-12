@@ -45,6 +45,35 @@ function initializeTables() {
       )
     `);
 
+    db.run(`
+      CREATE TABLE IF NOT EXISTS assessment_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        candidate_name TEXT,
+        status TEXT DEFAULT 'active',
+        started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ended_at DATETIME,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        fullscreen_required INTEGER DEFAULT 1,
+        violation_count INTEGER DEFAULT 0,
+        last_event TEXT,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      )
+    `);
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS assessment_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id INTEGER,
+        event_type TEXT NOT NULL,
+        severity TEXT DEFAULT 'medium',
+        details TEXT,
+        payload TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (session_id) REFERENCES assessment_sessions(id)
+      )
+    `);
+
     console.log("Database tables initialized.");
   });
 }

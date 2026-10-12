@@ -2,6 +2,7 @@
 node_modules/
 Backend/node_modules/
 frontend/node_modules/
+deepfake-detector-backend/.venv/
 
 # Environment variables
 .env
@@ -22,4 +23,3 @@ dist/
 build/
 Backend/public/results/*.png
 Backend/public/results/*.jpg
-

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Scanner - Deepfake Detector</title>
+    <title>Code Scanner - SynthShield</title>
     <link rel="stylesheet" href="modern.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -28,7 +28,18 @@
         .scanner-layout { display: flex; min-height: 100vh; }
         .sidebar { width: 260px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
         .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 0 12px; margin-bottom: 32px; }
-        .sidebar-logo .logo-icon { width: 40px; height: 40px; }
+        .sidebar-logo .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+        }
         .sidebar-logo .logo-text { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
         .sidebar-nav { list-style: none; }
         .sidebar-nav-item { margin-bottom: 4px; }
@@ -111,15 +122,14 @@
     <div class="scanner-layout">
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <div class="logo-icon">🔍</div>
-                <span class="logo-text">Deepfake<br>Detector</span>
+                <div class="logo-icon">🛡️</div>
+                <span class="logo-text">SynthShield</span>
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-nav-item"><a href="dashboard.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📊</span>Dashboard</a></li>
                 <li class="sidebar-nav-item"><a href="scanner_with_viz.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">🔍</span>Scanner</a></li>
                 <li class="sidebar-nav-item"><a href="code-scanner.html" class="sidebar-nav-link active"><span class="sidebar-nav-icon">📱</span>Code Scanner</a></li>
                 <li class="sidebar-nav-item"><a href="metadata-analyzer.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📑</span>Metadata Analyzer</a></li>
-                <li class="sidebar-nav-item"><a href="provenance.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">🛡️</span>Provenance</a></li>
                 <li class="sidebar-nav-item"><a href="live-detection.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📹</span>Live Detection</a></li>
                 <li class="sidebar-nav-item"><a href="result.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📋</span>History</a></li>
             </ul>
@@ -140,7 +150,7 @@
         <main class="main-content">
             <div class="page-header">
                 <h1 class="page-title">📱 Code Scanner</h1>
-                <p class="page-subtitle">Upload source code files to detect bugs, security issues, and get fixes</p>
+                <p class="page-subtitle">Upload source code files to detect bugs, security issues, and get guided fixes.</p>
             </div>
             
             <div class="scanner-container">
@@ -424,7 +434,7 @@
                 html += '<div class="result-desc">' + result.line + ': ' + result.desc + '</div>';
                 if (result.fix) {
                     html += '<div class="fix-box">';
-                    html += '<div class="fix-label">🔧 Recommended Fix</div>';
+                    html += '<div class="fix-label">💡 Recommended Fix</div>';
                     html += '<div class="fix-code">' + result.fix + '</div>';
                     html += '</div>';
                 }

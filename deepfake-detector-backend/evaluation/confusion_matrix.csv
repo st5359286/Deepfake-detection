@@ -1,0 +1,5 @@
+actual,predicted,count
+real,real,4
+real,fake,0
+fake,real,4
+fake,fake,0

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Detection - Deepfake Detector</title>
+    <title>Live Detection - SynthShield</title>
     <link rel="stylesheet" href="modern.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,6 +73,7 @@
             justify-content: center;
             color: white;
             font-size: 1.25rem;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
         }
 
         .logo-text {
@@ -430,6 +431,167 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+        }
+
+        .proctor-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            border: 1px solid transparent;
+        }
+
+        .status-pill.ready {
+            background: rgba(16, 185, 129, 0.12);
+            color: #047857;
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .status-pill.warning {
+            background: rgba(245, 158, 11, 0.12);
+            color: #b45309;
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        .status-pill.danger {
+            background: rgba(239, 68, 68, 0.12);
+            color: #b91c1c;
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .proctor-violations {
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .proctor-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.86rem;
+            line-height: 1.6;
+        }
+
+        .proctor-list li {
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(79, 70, 229, 0.04);
+            border: 1px solid rgba(79, 70, 229, 0.08);
+        }
+
+        .proctor-list li.warning {
+            background: rgba(245, 158, 11, 0.07);
+            border-color: rgba(245, 158, 11, 0.15);
+            color: #92400e;
+        }
+
+        .proctor-list li.danger {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.18);
+            color: #991b1b;
+        }
+
+        .proctor-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .proctor-summary-card {
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: var(--bg-input);
+        }
+
+        .proctor-summary-label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .proctor-summary-value {
+            display: block;
+            margin-top: 4px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .proctor-list li {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px;
+        }
+
+        .proctor-entry-time {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .proctor-entry-copy {
+            min-width: 0;
+        }
+
+        .proctor-entry-detail {
+            display: block;
+            margin-top: 2px;
+            color: inherit;
+            font-size: 0.77rem;
+            line-height: 1.45;
+            opacity: 0.82;
+        }
+
+        .use-case-strip {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin: 0 0 24px;
+        }
+
+        .use-case-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 18px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+
+        .use-case-item .badge {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            background: rgba(79, 70, 229, 0.12);
+            color: var(--primary);
         }
 
         .panel-card {
@@ -838,6 +1000,16 @@
             .mode-buttons {
                 flex-wrap: wrap;
             }
+
+            .use-case-strip {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .use-case-strip {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -846,8 +1018,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <div class="logo-icon">🔍</div>
-                <span class="logo-text">Deepfake<br>Detector</span>
+                <div class="logo-icon">🛡️</div>
+                <span class="logo-text">SynthShield</span>
             </div>
             
             <ul class="sidebar-nav">
@@ -875,12 +1047,7 @@
                         Metadata Analyzer
                     </a>
                 </li>
-                <li class="sidebar-nav-item">
-                    <a href="provenance.html" class="sidebar-nav-link">
-                        <span class="sidebar-nav-icon">🛡️</span>
-                        Provenance
-                    </a>
-                </li>
+               
                 <li class="sidebar-nav-item">
                     <a href="live-detection.html" class="sidebar-nav-link active">
                         <span class="sidebar-nav-icon">📹</span>
@@ -930,8 +1097,15 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="page-header">
-                <h1 class="page-title">Live Biometric Verification</h1>
-                <p class="page-subtitle">Real-time face detection and liveness verification</p>
+                <h1 class="page-title">Live Candidate Verification</h1>
+                <p class="page-subtitle">Real-time identity, behavioral, and anti-fraud checks for hiring, assessments, onboarding, and regulated verification.</p>
+            </div>
+
+            <div class="use-case-strip">
+                <div class="use-case-item"><span class="badge">🧑‍💼</span> Remote Hiring</div>
+                <div class="use-case-item"><span class="badge">🧪</span> Online Assessments</div>
+                <div class="use-case-item"><span class="badge">✅</span> KYC & Onboarding</div>
+                <div class="use-case-item"><span class="badge">🛡️</span> Fraud Review</div>
             </div>
             
             <div class="live-container">
@@ -987,7 +1161,7 @@
                             <div style="display: flex; gap: 12px; justify-content: center;">
                                 <button class="control-btn start" id="startBtn" onclick="startVerification()">▶️</button>
                                 <button class="control-btn stop" id="stopBtn" onclick="stopVerification()" style="display: none;">⏹️</button>
-                                <button class="control-btn secondary" onclick="switchCamera()">🔄</button>
+                                <button class="control-btn secondary" onclick="switchCamera()">📄</button>
                             </div>
                         </div>
                     </div>
@@ -996,41 +1170,41 @@
                     <div class="analysis-panel">
                         <!-- Progress Steps -->
                         <div class="panel-card">
-                            <h3 class="panel-title">📊 Verification Progress</h3>
+                            <h3 class="panel-title">📊 Assessment Progress</h3>
                             <div class="progress-steps">
                                 <div class="step" id="step1">
                                     <div class="step-ring" id="step-1-ring">
                                         <span class="text-xs font-medium text-gray-500">1</span>
                                     </div>
-                                    <span class="step-label">Face Detection</span>
+                                    <span class="step-label">Identity Check</span>
                                 </div>
                                 <div class="step" id="step2">
                                     <div class="step-ring" id="step-2-ring">
                                         <span class="text-xs font-medium text-gray-500">2</span>
                                     </div>
-                                    <span class="step-label">Blink Check</span>
+                                    <span class="step-label">Behavior Check</span>
                                 </div>
                                 <div class="step" id="step3">
                                     <div class="step-ring" id="step-3-ring">
                                         <span class="text-xs font-medium text-gray-500">3</span>
                                     </div>
-                                    <span class="step-label">Smile</span>
+                                    <span class="step-label">Liveness</span>
                                 </div>
                                 <div class="step" id="step4">
                                     <div class="step-ring" id="step-4-ring">
                                         <span class="text-xs font-medium text-gray-500">4</span>
                                     </div>
-                                    <span class="step-label">Complete</span>
+                                    <span class="step-label">Decision</span>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Result Display -->
                         <div class="panel-card">
-                            <h3 class="panel-title">🎯 Analysis Result</h3>
+                            <h3 class="panel-title">📊 Assessment Result</h3>
                             <div class="result-display scanning" id="resultDisplay">
                                 <div class="result-icon" id="resultIcon">⏳</div>
-                                <div class="result-text" id="resultText">Ready to scan</div>
+                                <div class="result-text" id="resultText">Ready to verify candidate</div>
                             </div>
                             
                             <div class="confidence-meter" id="confidenceMeter">
@@ -1066,14 +1240,37 @@
                                 <span class="metric-value" id="statMultiface">-</span>
                             </div>
                             <div class="metric-row">
-                                <span class="metric-label">Deepfake Prob</span>
+                                <span class="metric-label">Synth Prob</span>
                                 <span class="metric-value" id="statDeepfake">-</span>
                             </div>
+                        </div>
+
+                        <div class="panel-card">
+                            <h3 class="panel-title">🛡️ Proctoring Monitor</h3>
+                            <div class="proctor-status">
+                                <span class="status-pill ready" id="proctorState">Monitoring Ready</span>
+                                <span class="proctor-violations" id="proctorViolationCount">0 violations</span>
+                            </div>
+                            <div class="proctor-summary">
+                                <div class="proctor-summary-card">
+                                    <span class="proctor-summary-label">Risk level</span>
+                                    <span class="proctor-summary-value" id="proctorRiskLevel">Low</span>
+                                </div>
+                                <div class="proctor-summary-card">
+                                    <span class="proctor-summary-label">Last check</span>
+                                    <span class="proctor-summary-value" id="proctorLastCheck">Not started</span>
+                                </div>
+                            </div>
+                            <ul class="proctor-list" id="proctorWarningsList">
+                                <li><span class="proctor-entry-time">Ready</span><span class="proctor-entry-copy">Webcam and face checks enabled<span class="proctor-entry-detail">The camera feed will be checked for face presence and multiple faces.</span></span></li>
+                                <li><span class="proctor-entry-time">Ready</span><span class="proctor-entry-copy">Fullscreen monitoring active<span class="proctor-entry-detail">Leaving fullscreen is recorded as a review event during verification.</span></span></li>
+                                <li><span class="proctor-entry-time">Ready</span><span class="proctor-entry-copy">Tab switch and Escape events tracked<span class="proctor-entry-detail">Focus changes are logged with the time and reason.</span></span></li>
+                            </ul>
                         </div>
                         
                         <!-- How it Works -->
                         <div class="panel-card">
-                            <h3 class="panel-title">ℹ️ How it Works</h3>
+                            <h3 class="panel-title">🔐 How it Works</h3>
                             <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7;">
                                 Our AI analyzes facial features, lighting, and movement patterns in real-time. 
                                 The system performs liveness checks including blink detection and smile verification 
@@ -1100,15 +1297,15 @@
             <div class="result-stats">
                 <div class="result-stat">
                     <div class="result-stat-label">Face Detection</div>
-                    <div class="result-stat-value" id="modalFace">✓ Pass</div>
+                    <div class="result-stat-value" id="modalFace">✅ Pass</div>
                 </div>
                 <div class="result-stat">
                     <div class="result-stat-label">Liveness</div>
-                    <div class="result-stat-value" id="modalLiveness">✓ Pass</div>
+                    <div class="result-stat-value" id="modalLiveness">✅ Pass</div>
                 </div>
                 <div class="result-stat">
                     <div class="result-stat-label">Multi-face</div>
-                    <div class="result-stat-value" id="modalMultiface">✓ Pass</div>
+                    <div class="result-stat-value" id="modalMultiface">✅ Pass</div>
                 </div>
                 <div class="result-stat">
                     <div class="result-stat-label">Confidence</div>
@@ -1142,6 +1339,9 @@
         const promptProgress = document.getElementById("promptProgress");
         const faceWarning = document.getElementById("faceWarning");
         const resultOverlay = document.getElementById("resultOverlay");
+        const proctorStateEl = document.getElementById("proctorState");
+        const proctorViolationCountEl = document.getElementById("proctorViolationCount");
+        const proctorWarningsList = document.getElementById("proctorWarningsList");
         
         const modeWebcam = document.getElementById("modeWebcam");
         const modeScreen = document.getElementById("modeScreen");
@@ -1155,8 +1355,184 @@
         let sessionId = generateSessionId();
         let frameCount = 0;
         let faceConfidenceAccumulator = [];
+        let violationCount = 0;
+        let lastViolationAt = 0;
+        let lastFaceCheckAt = 0;
+        let assessmentSessionId = null;
+        const proctorMaxViolations = 3;
 
         sessionIdEl.textContent = sessionId.substring(0, 12) + "...";
+
+        async function createAssessmentSession() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user || !user.id || assessmentSessionId) return;
+
+            try {
+                const response = await fetch(`${window.config.API_URL}/api/assessment/session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.id, candidateName: user.username || 'Candidate' }),
+                });
+
+                if (!response.ok) throw new Error('Session create failed');
+                const data = await response.json();
+                assessmentSessionId = data.sessionId;
+                appendProctorEntry(`Assessment session ${assessmentSessionId} created on the server.`, 'info');
+            } catch (error) {
+                console.warn('Server-side session tracking unavailable:', error);
+            }
+        }
+
+        async function syncAssessmentEvent(type, detail, severity = 'medium') {
+            if (!assessmentSessionId) return;
+
+            try {
+                await fetch(`${window.config.API_URL}/api/assessment/sessions/${assessmentSessionId}/event`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, severity, details: detail, payload: { sessionId, timestamp: new Date().toISOString() } }),
+                });
+            } catch (error) {
+                console.warn('Failed to sync assessment event:', error);
+            }
+        }
+
+        async function closeAssessmentSession(status = 'completed') {
+            if (!assessmentSessionId) return;
+
+            try {
+                await fetch(`${window.config.API_URL}/api/assessment/sessions/${assessmentSessionId}/end`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status }),
+                });
+            } catch (error) {
+                console.warn('Failed to close assessment session:', error);
+            }
+        }
+
+        function setProctorStatus(label, type = "ready") {
+            if (!proctorStateEl) return;
+            proctorStateEl.textContent = label;
+            proctorStateEl.className = "status-pill " + type;
+        }
+
+        function updateViolationCount() {
+            if (!proctorViolationCountEl) return;
+            const label = violationCount === 1 ? "1 violation" : `${violationCount} violations`;
+            proctorViolationCountEl.textContent = label;
+            const risk = document.getElementById("proctorRiskLevel");
+            if (risk) {
+                risk.textContent = violationCount === 0 ? "Low" : violationCount < proctorMaxViolations ? "Needs review" : "High";
+                risk.style.color = violationCount === 0 ? "var(--secondary)" : violationCount < proctorMaxViolations ? "var(--warning)" : "var(--danger)";
+            }
+        }
+
+        function appendProctorEntry(message, level = "info", detail = "") {
+            if (!proctorWarningsList) return;
+            const item = document.createElement("li");
+            const time = document.createElement("span");
+            time.className = "proctor-entry-time";
+            time.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            const copy = document.createElement("span");
+            copy.className = "proctor-entry-copy";
+            copy.textContent = message;
+            if (detail) {
+                const explanation = document.createElement("span");
+                explanation.className = "proctor-entry-detail";
+                explanation.textContent = detail;
+                copy.appendChild(explanation);
+            }
+            item.appendChild(time);
+            item.appendChild(copy);
+            if (level === "warning") item.classList.add("warning");
+            if (level === "danger") item.classList.add("danger");
+            proctorWarningsList.prepend(item);
+            const lastCheck = document.getElementById("proctorLastCheck");
+            if (lastCheck) lastCheck.textContent = time.textContent;
+            while (proctorWarningsList.children.length > 5) {
+                proctorWarningsList.removeChild(proctorWarningsList.lastChild);
+            }
+        }
+
+        function recordViolation(type, detail, severity = "medium") {
+            const now = Date.now();
+            if (now - lastViolationAt < 3500) return;
+            lastViolationAt = now;
+
+            violationCount += 1;
+            updateViolationCount();
+            setProctorStatus(violationCount >= proctorMaxViolations ? "Assessment Flagged" : "Violation Detected", violationCount >= proctorMaxViolations ? "danger" : "warning");
+            appendProctorEntry(
+                `${type}: ${detail}`,
+                severity === "high" ? "danger" : "warning",
+                "This event is logged for review and is not an automatic finding of misconduct."
+            );
+            syncAssessmentEvent(type, detail, severity);
+
+            const alert = document.getElementById("alertBox");
+            if (alert) {
+                alert.className = "alert-box warning show";
+                alert.innerHTML = `<strong>⚠ Proctor alert:</strong> ${detail}`;
+            }
+
+            if (violationCount >= proctorMaxViolations) {
+                const finalMessage = "Repeated violations triggered automatic assessment termination.";
+                appendProctorEntry(finalMessage, "danger");
+                setStatus("Flagged", "warning");
+                if (assessmentSessionId) {
+                    fetch(`${window.config.API_URL}/api/assessment/sessions/${assessmentSessionId}/end`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'flagged' })
+                    }).catch(() => {});
+                }
+                if (typeof stopVerification === 'function') stopVerification();
+                alert.className = "alert-box danger show";
+                alert.innerHTML = `<strong>⛔ Assessment terminated:</strong> ${finalMessage}`;
+            }
+        }
+
+        async function requestAssessmentFullscreen() {
+            try {
+                if (document.fullscreenElement) return;
+                if (document.documentElement.requestFullscreen) {
+                    await document.documentElement.requestFullscreen();
+                }
+            } catch (error) {
+                appendProctorEntry("Fullscreen request blocked by the browser. Please allow it to continue.", "warning");
+                setProctorStatus("Manual Override Needed", "warning");
+            }
+        }
+
+        document.addEventListener("fullscreenchange", function() {
+            if (!isScanning) return;
+            if (document.fullscreenElement === null) {
+                recordViolation("FULLSCREEN_EXIT", "Candidate left fullscreen mode during the assessment.", "high");
+            }
+        });
+
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden && isScanning) {
+                recordViolation("TAB_SWITCH", "Page became hidden or switched away from the assessment.", "medium");
+            }
+        });
+
+        window.addEventListener("blur", function() {
+            if (isScanning) {
+                recordViolation("WINDOW_BLUR", "Window lost focus while the assessment was active.", "medium");
+            }
+        });
+
+        document.addEventListener("keydown", function(event) {
+            if (!isScanning) return;
+            if (event.key === "Escape") {
+                recordViolation("ESCAPE_PRESSED", "Escape key was pressed during the assessment.", "high");
+            }
+            if (event.key === "Tab") {
+                recordViolation("TAB_SWITCH", "Tab key detected while assessment was in progress.", "medium");
+            }
+        });
 
         // Session ID Generation
         function generateSessionId() {
@@ -1303,6 +1679,19 @@
             currentStream = stream;
             video.srcObject = stream;
 
+            stream.getTracks().forEach(function(track) {
+                track.addEventListener('ended', function() {
+                    if (!isScanning) return;
+                    recordViolation(
+                        'MEDIA_INTERRUPTED',
+                        track.kind === 'video'
+                            ? 'The camera stream ended while monitoring was active.'
+                            : 'The microphone stream ended while monitoring was active.',
+                        'high'
+                    );
+                });
+            });
+
             video.onloadedmetadata = function() {
                 canvas.width = video.clientWidth;
                 canvas.height = video.clientHeight;
@@ -1339,30 +1728,60 @@
                         // Draw advanced meshes
                         faceapi.draw.drawDetections(canvas, resizedDetections);
                         faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-                        
-                        if (resizedDetections.length > 0) {
-                            if (isScanning) {
-                                faceConfidenceAccumulator.push(resizedDetections[0].detection.score);
+
+                        if (resizedDetections.length === 0) {
+                            const now = Date.now();
+                            if (now - lastFaceCheckAt > 5000) {
+                                lastFaceCheckAt = now;
+                                recordViolation('NO_FACE', 'No face detected in the camera feed.', 'medium');
                             }
-                            const expr = resizedDetections[0].expressions;
-                            const dominant = Object.keys(expr).reduce((a, b) => expr[a] > expr[b] ? a : b);
-                            
-                            ctx.fillStyle = '#10B981';
-                            ctx.font = 'bold 16px Inter';
-                            ctx.shadowColor = '#000';
-                            ctx.shadowBlur = 4;
-                            const box = resizedDetections[0].detection.box;
-                            ctx.fillText(`Liveness Map: Verified`, box.x, box.y - 35);
-                            ctx.fillText(`Vector: ${dominant.toUpperCase()}`, box.x, box.y - 12);
-                            
-                            // Dynamic UI update
-                            const mFace = document.getElementById('statFace');
-                            if(mFace && mFace.textContent !== 'Active Tracking') {
-                                mFace.textContent = 'Active Tracking';
-                                mFace.className = 'metric-value warning';
-                                mFace.style.color = 'var(--warning)';
+                            faceWarning.classList.add('active');
+                            faceWarning.textContent = '⚠ No face detected';
+                            return;
+                        }
+
+                        if (resizedDetections.length > 1) {
+                            const now = Date.now();
+                            if (now - lastFaceCheckAt > 5000) {
+                                lastFaceCheckAt = now;
+                                recordViolation('MULTIPLE_FACES', 'More than one face detected in the frame.', 'high');
+                            }
+                            faceWarning.classList.add('active');
+                            faceWarning.textContent = '⚠ Multiple faces detected';
+                            return;
+                        }
+
+                        const detectionScore = resizedDetections[0].detection.score;
+                        if (detectionScore < 0.5) {
+                            const now = Date.now();
+                            if (now - lastFaceCheckAt > 5000) {
+                                lastFaceCheckAt = now;
+                                recordViolation('FACE_MISMATCH', 'Face confidence dropped below the verification threshold.', 'high');
                             }
                         }
+                        
+                        if (isScanning) {
+                            faceConfidenceAccumulator.push(detectionScore);
+                        }
+                        const expr = resizedDetections[0].expressions;
+                        const dominant = Object.keys(expr).reduce((a, b) => expr[a] > expr[b] ? a : b);
+                        
+                        ctx.fillStyle = '#10B981';
+                        ctx.font = 'bold 16px Inter';
+                        ctx.shadowColor = '#000';
+                        ctx.shadowBlur = 4;
+                        const box = resizedDetections[0].detection.box;
+                        ctx.fillText(`Liveness Map: Verified`, box.x, box.y - 35);
+                        ctx.fillText(`Vector: ${dominant.toUpperCase()}`, box.x, box.y - 12);
+                        
+                        // Dynamic UI update
+                        const mFace = document.getElementById('statFace');
+                        if(mFace && mFace.textContent !== 'Active Tracking') {
+                            mFace.textContent = 'Active Tracking';
+                            mFace.className = 'metric-value warning';
+                            mFace.style.color = 'var(--warning)';
+                        }
+                        faceWarning.classList.remove('active');
                     } catch(e) {}
                 }, 150);
             });
@@ -1405,19 +1824,31 @@
         }
 
         // Start Verification
-        function startVerification() {
+        async function startVerification() {
             if (currentMode === 'webcam') {
-                if (!currentStream) startWebcam();
-                else startLivenessCheck();
+                if (!currentStream) {
+                    await startWebcam();
+                }
             } else if (currentMode === 'screen') {
-                if (!currentStream) startScreenShare();
-                else startLivenessCheck();
+                if (!currentStream) {
+                    await startScreenShare();
+                }
             }
+
+            if (!currentStream) return;
+            await requestAssessmentFullscreen();
+            startLivenessCheck();
         }
 
         // Start Liveness Check
         function startLivenessCheck() {
             isScanning = true;
+            violationCount = 0;
+            lastViolationAt = 0;
+            createAssessmentSession();
+            setProctorStatus("Monitoring Active", "ready");
+            updateViolationCount();
+            appendProctorEntry("Assessment started in fullscreen mode monitoring.", "info");
             
             videoPlaceholder.style.display = 'none';
             startBtn.style.display = 'none';
@@ -1497,18 +1928,21 @@
 
         // Stop Verification
         function stopVerification() {
+            if (isScanning || assessmentSessionId) {
+                closeAssessmentSession('completed');
+            }
             stopStream();
             setStatus("Ready", "ready");
         }
 
         // Complete Scan
         function completeScan(success) {
-            isScanning = false;
             scanLine.classList.remove('active');
             promptCard.classList.remove('active');
             faceWarning.classList.remove('active');
-
-            setStatus("Complete", "success");
+            setProctorStatus("Monitoring Active", "ready");
+            appendProctorEntry("Identity verification complete. Continuous monitoring remains active.", "info");
+            setStatus("Monitoring Active", "scanning");
 
             let confidence = 85;
             if (faceConfidenceAccumulator.length > 0) {
@@ -1524,11 +1958,11 @@
 
             // Update Stats
             document.getElementById('framesCount').textContent = frameCount;
-            document.getElementById('statFace').textContent = '✓ Pass';
+            document.getElementById('statFace').textContent = '✅ Pass';
             document.getElementById('statFace').className = 'metric-value pass';
-            document.getElementById('statLiveness').textContent = '✓ Pass';
+            document.getElementById('statLiveness').textContent = '✅ Pass';
             document.getElementById('statLiveness').className = 'metric-value pass';
-            document.getElementById('statMultiface').textContent = '✓ Pass';
+            document.getElementById('statMultiface').textContent = '✅ Pass';
             document.getElementById('statMultiface').className = 'metric-value pass';
             
             const deepfakeProb = Math.floor(Math.random() * 20) + 5;
@@ -1549,8 +1983,8 @@
             const alertBox = document.getElementById('alertBox');
 
             display.className = 'result-display ' + (isPassed ? 'success' : 'warning');
-            icon.textContent = isPassed ? '✅' : '⚠️';
-            text.textContent = isPassed ? 'Verification Successful!' : 'Partial Verification';
+            icon.textContent = isPassed ? '✓' : '⚠️';
+            text.textContent = isPassed ? 'Candidate Verified' : 'Review Required';
 
             value.textContent = confidence + '%';
             
@@ -1562,10 +1996,10 @@
 
             if (isPassed) {
                 alertBox.className = 'alert-box success show';
-                alertBox.innerHTML = '<strong>✓ Verified:</strong> Identity confirmed with ' + confidence + '% confidence';
+                alertBox.innerHTML = '<strong>✓ Candidate verified:</strong> Live assessment passed with ' + confidence + '% confidence';
             } else {
                 alertBox.className = 'alert-box warning show';
-                alertBox.innerHTML = '<strong>⚠️ Low confidence:</strong> Please try again.';
+                alertBox.innerHTML = '<strong>⚠️ Review required:</strong> Confidence is low and deserves manual follow-up.';
             }
 
             // Show Modal
@@ -1582,23 +2016,23 @@
             if (isPassed) {
                 modalIcon.className = 'result-modal-icon success';
                 modalIcon.innerHTML = '<svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
-                modalTitle.textContent = 'Verification Successful';
+                modalTitle.textContent = 'Assessment Approved';
                 modalTitle.className = 'result-modal-title success';
-                modalMessage.textContent = 'Identity confirmed with ' + confidence + '% confidence';
+                modalMessage.textContent = 'Candidate identity and live verification passed with ' + confidence + '% confidence';
             } else {
                 modalIcon.className = 'result-modal-icon warning';
                 modalIcon.innerHTML = '<svg class="w-16 h-16 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
-                modalTitle.textContent = 'Partial Verification';
+                modalTitle.textContent = 'Review Required';
                 modalTitle.className = 'result-modal-title warning';
-                modalMessage.textContent = 'Low confidence (' + confidence + '%). Please try again.';
+                modalMessage.textContent = 'Verification confidence is low (' + confidence + '%). Further review is recommended.';
             }
 
             document.getElementById('modalConfidence').textContent = confidence + '%';
-            document.getElementById('modalFace').textContent = '✓ Pass';
+            document.getElementById('modalFace').textContent = '✅ Pass';
             document.getElementById('modalFace').className = 'result-stat-value text-green-500';
-            document.getElementById('modalLiveness').textContent = '✓ Pass';
+            document.getElementById('modalLiveness').textContent = '✅ Pass';
             document.getElementById('modalLiveness').className = 'result-stat-value text-green-500';
-            document.getElementById('modalMultiface').textContent = '✓ Pass';
+            document.getElementById('modalMultiface').textContent = '✅ Pass';
             document.getElementById('modalMultiface').className = 'result-stat-value text-green-500';
 
             resultOverlay.classList.add('active');
@@ -1607,7 +2041,6 @@
         // Close Result
         function closeResult() {
             resultOverlay.classList.remove('active');
-            stopVerification();
         }
 
         // Save Result

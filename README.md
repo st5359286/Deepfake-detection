@@ -69,13 +69,13 @@ Follow these steps to get your development environment set up.
     npm install
     ```
 
-3.  **(Optional) Run Python backend (if using Python API)**
+3.  **(Optional) Run Python ML backend:**
 
-    Install Python 3.11 and dependencies:
+    Navigate to `deepfake-detector-backend` and install dependencies:
     ```sh
-    python --version  # should print 3.11.x
-    python -m pip install --upgrade pip
+    cd deepfake-detector-backend
     python -m pip install -r requirements.txt
+    python -m flask --app 'src.api:create_app' run --port 5000
     ```
 
 4.  **Set up environment variables:**

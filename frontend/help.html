@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Help - Deepfake Detector</title>
+    <title>Help - SynthShield</title>
     <link rel="stylesheet" href="modern.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,7 +11,18 @@
         .help-layout { display: flex; min-height: 100vh; }
         .sidebar { width: 260px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
         .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 0 12px; margin-bottom: 32px; }
-        .sidebar-logo .logo-icon { width: 40px; height: 40px; }
+        .sidebar-logo .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+        }
         .sidebar-logo .logo-text { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
         .sidebar-nav { list-style: none; }
         .sidebar-nav-item { margin-bottom: 4px; }
@@ -67,12 +78,12 @@
     <div class="help-layout">
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <div class="logo-icon">🔍</div>
-                <span class="logo-text">Deepfake<br>Detector</span>
+                <div class="logo-icon">🛡️</div>
+                <span class="logo-text">SynthShield</span>
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-nav-item"><a href="dashboard.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📊</span>Dashboard</a></li>
-<li class="sidebar-nav-item"><a href="scanner_with_viz.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">🔍</span>Scanner</a></li>
+                <li class="sidebar-nav-item"><a href="scanner_with_viz.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">🔍</span>Scanner</a></li>
                 <li class="sidebar-nav-item"><a href="live-detection.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📹</span>Live Detection</a></li>
                 <li class="sidebar-nav-item"><a href="result.html" class="sidebar-nav-link"><span class="sidebar-nav-icon">📋</span>History</a></li>
             </ul>
@@ -120,7 +131,7 @@
                         </div>
                     </a>
                     <a href="#contact" class="quick-link">
-                        <span class="quick-link-icon">📧</span>
+                        <span class="quick-link-icon">📩</span>
                         <div>
                             <div class="quick-link-text">Contact Support</div>
                             <div class="quick-link-desc">Get help</div>
@@ -133,7 +144,7 @@
                     <h2 class="section-title">🚀 Getting Started</h2>
                     <div class="info-cards">
                         <div class="info-card">
-                            <div class="info-card-icon">📷</div>
+                            <div class="info-card-icon">🖼️</div>
                             <div class="info-card-title">Analyze Images</div>
                             <div class="info-card-text">Upload JPG, PNG, or GIF images to check for manipulation. Our AI analyzes metadata, visual artifacts, and more.</div>
                         </div>
@@ -143,7 +154,7 @@
                             <div class="info-card-text">Upload MP4 or AVI videos for deepfake detection. We analyze frame-by-frame for signs of manipulation.</div>
                         </div>
                         <div class="info-card">
-                            <div class="info-card-icon">🔊</div>
+                            <div class="info-card-icon">🎧</div>
                             <div class="info-card-title">Analyze Audio</div>
                             <div class="info-card-text">Upload WAV or MP3 files to detect voice cloning and audio manipulation.</div>
                         </div>
@@ -162,7 +173,7 @@
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
                             <span>What is deepfake detection?</span>
-                            <span class="faq-toggle">▼</span>
+                            <span class="faq-toggle">▾</span>
                         </div>
                         <div class="faq-answer">Deepfake detection is the process of identifying manipulated media (images, videos, or audio) that have been artificially created using artificial intelligence. Our tool analyzes various indicators like facial inconsistencies, metadata, and visual artifacts to determine if content is authentic or manipulated.</div>
                     </div>
@@ -170,7 +181,7 @@
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
                             <span>How accurate is the detection?</span>
-                            <span class="faq-toggle">▼</span>
+                            <span class="faq-toggle">▾</span>
                         </div>
                         <div class="faq-answer">Our detection engine achieves high accuracy rates, typically between 85-95% for clear manipulations. However, accuracy may vary depending on the quality of the media and the sophistication of the manipulation technique used.</div>
                     </div>
@@ -178,7 +189,7 @@
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
                             <span>What file types are supported?</span>
-                            <span class="faq-toggle">▼</span>
+                            <span class="faq-toggle">▾</span>
                         </div>
                         <div class="faq-answer">We support images (JPG, PNG, GIF, TIFF), videos (MP4, AVI, MOV), and audio files (WAV, MP3). Maximum file size is 50MB for best performance.</div>
                     </div>
@@ -186,7 +197,7 @@
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
                             <span>Is my data secure?</span>
-                            <span class="faq-toggle">▼</span>
+                            <span class="faq-toggle">▾</span>
                         </div>
                         <div class="faq-answer">Yes! We take data security seriously. Your uploaded files are processed securely and automatically deleted from our servers after analysis. We never share your data with third parties.</div>
                     </div>
@@ -194,7 +205,7 @@
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
                             <span>How does live detection work?</span>
-                            <span class="faq-toggle">▼</span>
+                            <span class="faq-toggle">▾</span>
                         </div>
                         <div class="faq-answer">Live detection uses your device's camera to analyze video in real-time. It detects faces and analyzes them for signs of manipulation. Perfect for video calls and live streams.</div>
                     </div>
@@ -202,7 +213,7 @@
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
                             <span>Can I download analysis reports?</span>
-                            <span class="faq-toggle">▼</span>
+                            <span class="faq-toggle">▾</span>
                         </div>
                         <div class="faq-answer">Yes! After each analysis, you can download a detailed PDF report that includes confidence scores, feature analysis, and metadata information.</div>
                     </div>
@@ -210,7 +221,7 @@
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
                             <span>How do I reset my password?</span>
-                            <span class="faq-toggle">▼</span>
+                            <span class="faq-toggle">â¼</span>
                         </div>
                         <div class="faq-answer">Go to the login page and click "Forgot Password". Enter your email address and we'll send you a reset link. Follow the instructions in the email to create a new password.</div>
                     </div>
@@ -218,7 +229,7 @@
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
                             <span>Why do I need to verify my email?</span>
-                            <span class="faq-toggle">▼</span>
+                            <span class="faq-toggle">â¼</span>
                         </div>
                         <div class="faq-answer">Email verification ensures the security of your account and allows us to send you important notifications about your analyses. It's a required security step.</div>
                     </div>
@@ -226,7 +237,7 @@
                 
                 <!-- Contact Support -->
                 <div class="help-section" id="contact">
-                    <h2 class="section-title">📧 Contact Support</h2>
+                    <h2 class="section-title">📩 Contact Support</h2>
                     <p style="color: var(--text-secondary); margin-bottom: 20px;">Can't find what you're looking for? Send us a message!</p>
                     <form class="contact-form" onsubmit="submitContact(event)">
                         <div class="form-group">
@@ -257,8 +268,8 @@
                 
                 <!-- Footer Info -->
                 <div class="help-section" style="text-align: center; color: var(--text-muted);">
-                    <p>Need immediate assistance? Email us at <strong>support@deepfake-detector.com</strong></p>
-                    <p style="margin-top: 8px;">© 2024 Deepfake Detector. All rights reserved.</p>
+                    <p>Need immediate assistance? Email us at <strong>support@synthshield.ai</strong></p>
+                    <p style="margin-top: 8px;">© 2024 SynthShield. All rights reserved.</p>
                 </div>
             </div>
         </main>

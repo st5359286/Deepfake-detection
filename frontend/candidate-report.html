@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SynthShield | Candidate Risk Report</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="modern.css" />
+    <style>
+      :root {
+        --primary: #4F46E5;
+        --primary-dark: #4338CA;
+        --primary-light: #818CF8;
+        --secondary: #10B981;
+        --danger: #EF4444;
+        --warning: #F59E0B;
+        --bg-main: #F9FAFB;
+        --bg-card: #FFFFFF;
+        --bg-input: #F3F4F6;
+        --text-main: #111827;
+        --text-secondary: #6B7280;
+        --text-muted: #9CA3AF;
+        --border: #E5E7EB;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, sans-serif;
+        background: var(--bg-main);
+        color: var(--text-main);
+      }
+
+      .page-shell {
+        max-width: 1280px;
+        margin: 32px auto;
+        padding: 20px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+
+      .brand-lockup {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: white;
+        font-size: 1.35rem;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+      }
+
+      .brand-name {
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        color: var(--primary);
+      }
+
+      .report-title {
+        margin: 0;
+        font-size: clamp(2rem, 2.5vw, 2.5rem);
+        color: var(--text-main);
+      }
+
+      .report-subtitle {
+        margin: 8px 0 0;
+        color: var(--text-secondary);
+      }
+
+      .panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 14px 12px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.72rem;
+      }
+
+      tbody tr:hover {
+        background: rgba(79, 70, 229, 0.02);
+      }
+
+      .risk-badge {
+        display: inline-block;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.78rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 18px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        background: var(--bg-card);
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border-color: transparent;
+      }
+
+      .btn-primary:hover {
+        color: white;
+        box-shadow: 0 8px 18px rgba(79, 70, 229, 0.25);
+      }
+
+      .btn-secondary {
+        background: rgba(79, 70, 229, 0.08);
+        border-color: rgba(79, 70, 229, 0.12);
+      }
+
+      .btn-danger {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.18);
+        color: #b91c1c;
+      }
+
+      .decision-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin: 18px 0;
+      }
+
+      .decision-card {
+        padding: 16px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--bg-input);
+      }
+
+      .decision-label {
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .decision-value {
+        margin-top: 8px;
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+
+      .decision-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+
+      @media print {
+        body {
+          background: #fff !important;
+          color: #111827 !important;
+        }
+        .page-shell {
+          max-width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        .topbar,
+        .btn,
+        #close-decision-panel,
+        #hide-summary-card,
+        #export-report-btn,
+        #print-summary-btn {
+          display: none !important;
+        }
+        .panel {
+          background: #fff !important;
+          border: 1px solid #d1d5db !important;
+          box-shadow: none !important;
+          color: #111827 !important;
+        }
+        #printable-summary-card {
+          display: block !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="topbar">
+        <div>
+          <div class="brand-lockup">
+            <span class="brand-mark">🛡️</span>
+            <span class="brand-name">SynthShield</span>
+          </div>
+          <h1 class="report-title">Candidate Risk Report</h1>
+          <p class="report-subtitle">Assessment monitoring overview across all candidate sessions.</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <a href="dashboard.html" class="btn btn-secondary">Back to Dashboard</a>
+          <button id="export-report-btn" class="btn btn-primary">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Candidate</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Violations</th>
+                <th>Event Count</th>
+                <th>Risk Score</th>
+                <th>Risk Level</th>
+                <th>Recommendation</th>
+                <th>Started</th>
+                <th>Decision</th>
+              </tr>
+            </thead>
+            <tbody id="candidate-report-body">
+              <tr>
+                <td colspan="10" style="padding: 24px; color: #94a3b8; text-align: center;">Loading candidate report…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="decision-panel" class="panel" style="margin-top: 20px; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px; flex-wrap: wrap; margin-bottom: 18px;">
+          <div>
+            <h2 id="decision-title" style="margin: 0 0 8px; font-size: 1.5rem;">Session Decision</h2>
+            <div id="decision-meta" style="color: var(--text-secondary);"></div>
+          </div>
+          <button id="close-decision-panel" class="btn btn-secondary" type="button">Close</button>
+        </div>
+
+        <div id="decision-summary" class="decision-grid"></div>
+
+        <div class="decision-actions">
+          <button class="btn btn-primary" data-decision="approved" type="button">Approve</button>
+          <button class="btn btn-secondary" data-decision="review" type="button">Mark for Review</button>
+          <button class="btn btn-danger" data-decision="flagged" type="button">Flag</button>
+          <button id="print-summary-btn" class="btn btn-secondary" type="button">Print Summary</button>
+        </div>
+      </div>
+
+      <div id="printable-summary-card" class="panel" style="margin-top: 20px; display: none; page-break-inside: avoid;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+          <div>
+            <h2 style="margin: 0; font-size: 1.6rem;">Assessment Summary</h2>
+            <div id="print-summary-subtitle" style="color: #94a3b8; margin-top: 6px;">Candidate assessment report</div>
+          </div>
+          <button id="hide-summary-card" class="btn btn-secondary" type="button">Close Card</button>
+        </div>
+
+        <div id="print-summary-body" style="display: grid; gap: 16px;"></div>
+      </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="candidate-report.js"></script>
+  </body>
+</html>
